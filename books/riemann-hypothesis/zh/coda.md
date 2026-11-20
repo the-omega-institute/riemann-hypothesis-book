@@ -31,3 +31,12 @@
 你看，证明一座百年猜想不是数学的终点，而是把旧的谜底变成新世界的地板。当我们终于能站在 $\operatorname{Re}(s) = \frac{1}{2}$ 这块稳固的礁石上往远处眺望，真正清晰的，是海面上那几道尚未被点亮的灯塔。
 
 > 不要为失去一座灯塔而哀伤；每一座被人类真正熄灭的旧悬念，都会在它的原址上照亮十条通往未知的新路。
+
+## 版权声明与致谢 {#sec-coda-copyright-acknowledgments}
+
+本着科研诚实与署名清晰的原则，全书所涉形式化源码归属、仓库 Fork 渊源、许可边界与社区致谢一并列明于此：
+
+- **原证明作者与形式化源码版权**：书中所涉黎曼猜想与狄利克雷 $L$ 函数广义黎曼猜想的 Lean 4 证明源码由 **Levent Alpöge** 独立创作，并于 2026 年 11 月 20 日在 [`alpo.ge/remark.pdf`](https://alpo.ge/remark.pdf) 公布。原作者保留形式化源码的全部权利（发布时未附开源许可协议）；本书及配套仓库**不**对原始 Lean 源码进行再分发或重新许可，所有定理卡片均通过永久链接与类型签名指向公开仓库供读者核验。
+- **上游独立验证项目与仓库 Fork 说明**：谨向 **Deicyde** 创建的上游独立验证仓库 [`Deicyde/riemann-hypothesis`](https://github.com/Deicyde/riemann-hypothesis) 致谢，感谢其整理原始发布归档、撰写 27 行 `src/Challenge.lean` 挑战契约、设计多检验器 `comparator.json` 并公开详尽的 `verification/NOTES.md`。本书所锚定的 [`the-omega-institute/riemann-hypothesis`](https://github.com/the-omega-institute/riemann-hypothesis) 由 The Omega Institute 从 [`Deicyde/riemann-hypothesis`](https://github.com/Deicyde/riemann-hypothesis) **fork** 而来，完整保留全部证明源码不改一字，只增添 8,490 块内容寻址分片 CI 构建流水线、公开 Release 分仓与 `./verify` 零信任本地重放工具。
+- **本书正文、可视化与工具链许可**：本书的中文与英文导读正文、静态数学插图脚本、交互可视化页面及讲解视频脚本版权归 The Omega Institute 所有，依据 **`CC-BY-4.0`** 知识共享署名 4.0 国际许可协议开放使用（见 [`book.toml`](https://github.com/the-omega-institute/riemann-hypothesis-book/blob/main/books/riemann-hypothesis/book.toml)）；书库出版框架与自动化校验工具链基于 [`the-omega-institute/trureturing-books-template`](https://github.com/the-omega-institute/trureturing-books-template) 构建，按 **`Apache-2.0`** 开源许可协议发布。
+- **开源社区与基础软件致谢**：感谢 **Lean 4** 开发团队、**Mathlib 4**（`v4.33.1`）全体贡献者、Comparator 与 `lean4export` 作者团队，以及独立内核校验器 `leanchecker`、`nanoda`、`con-leche`、`con-ron` 与 `lean4lean`（Mario Carneiro）的作者；同时感谢让本双语多媒体专著得以端到端呈现的 `mdBook`、`Typst`、`Pandoc`、`KaTeX` 与 `Kokoro-82M` 开源项目。

@@ -71,6 +71,29 @@
       "tools/tbook/viz.py",
       "theme/viz/solid-core.js",
       "theme/viz/vendor/**"
+    ],
+    "proof-replay.test.mjs": [
+      "@citations",
+      "books/riemann-hypothesis/book.toml",
+      "site.toml",
+      "trureturing.lock.json",
+      "package.json",
+      "package-lock.json",
+      "theme/tokens.json",
+      "theme/generated/tokens.css",
+      "theme/viz/theme.css",
+      "theme/viz/shell.js",
+      "theme/viz/kit.js",
+      "theme/viz/favicon.svg",
+      "tools/tbook/__init__.py",
+      "tools/tbook/config.py",
+      "tools/tbook/lean.py",
+      "tools/tbook/mathrender.py",
+      "tools/tbook/mdscan.py",
+      "tools/tbook/model.py",
+      "tools/tbook/paths.py",
+      "tools/tbook/summary.py",
+      "tools/tbook/viz.py"
     ]
   }
 }

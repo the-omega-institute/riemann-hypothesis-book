@@ -16,6 +16,8 @@
 
 本书要做的事很直接：用不晦涩、能手算、能亲眼看见的语言，拆解 [`the-omega-institute/riemann-hypothesis`](https://github.com/the-omega-institute/riemann-hypothesis) 仓库中黎曼猜想（RH）以及狄利克雷 $L$ 函数的广义黎曼猜想（GRH）的 Lean 4 形式化证明究竟是怎么走通的。
 
+先说明出处与版权边界：这套 1,737 万行 Lean 4 证明源码由 **Levent Alpöge** 原创并公开发布（[`alpo.ge/remark.pdf`](https://alpo.ge/remark.pdf)，源码权利归原作者所有，本书库不作再分发）；**Deicyde** 创建了上游独立验证镜像 [`Deicyde/riemann-hypothesis`](https://github.com/Deicyde/riemann-hypothesis)；而我们所钉的形式化仓库 `the-omega-institute/riemann-hypothesis` 是从 `Deicyde/riemann-hypothesis` **fork** 而来，完整保留全部证明源码不改一字，专门叠加公开分片 CI 构建与 `./verify` 零信任本地重放工具（完整版权声明与致谢见[终章 · 版权声明与致谢](coda.md#sec-coda-copyright-acknowledgments)）。
+
 这份形式化源码体量惊人：175,187 个 `.lean` 文件，超过 1,737 万行代码，818,755 条定理与引理，没有一行注释，也没有一个 `sorry` 或自定义公理。任何人直接打开目录树，都会像走进一座没有路标的巨型钟表厂。
 
 面对这样的庞然大物，最糟糕的读法是逐行抄写符号；最聪明的读法是先问三个费曼式的问题：
@@ -32,7 +34,7 @@
 4. **[第四章 $\sqrt{X}$ 面镜子](ch04-chain-of-root-x-mirrors.md)**：这是整座证明里最让人拍案叫绝的一跳。为了在自守形式的世界里原生模拟“求导 $m$ 次”，证明把定酉群上的 Theta 提升首尾相连，串成一条长度高达 $m \sim \sqrt{X}$ 的锁链！再用“跷跷板法则”（Seesaw）把链条尽头的周期积分，翻成与赫克（Hecke）特征无关的贝塞尔（Bessel）周期。
 5. **[第五章 冲破 $2/3$ 天花板](ch05-breaking-two-thirds.md)**：每做一次提升都要付出“体积与高度的代价”。如果只盯着单个特征算账，链条走到 $\sigma = \frac{2}{3}$ 就会力竭停步。证明用格斜率（Harder–Narasimhan 最大斜率与博斯特斜率不等式）精确量出每一层的成本，再把一整族赫克特征上的整结构“胶合”起来分摊代价，一举击穿 $\frac{2}{3}$ 的天花板，直抵 $\frac{1}{2}$。
 6. **[第六章 贝伦德塔与收网时刻](ch06-behrend-towers-and-closing-the-net.md)**：选岩泽（Iwasawa）塔的层级时，最怕撞上等差数列的共振。证明借来贝伦德（Behrend）的高维整数球壳——球面严格外凸，任何三点都不共线，所以绝不藏着三项等差数列，却又能装下极高密度的整数！再配合局部–整体伽罗瓦表示、小类数估计与稠密阈值窗口，彻底收网，推出所有特征的右半平面无零点定理。
-7. **[第七章 一千七百万行代码的骨架](ch07-anatomy-of-17-million-lines.md)**：回到工程与认识论的地面：一部没人能逐行肉眼读完的形式化证明，为什么能比任何纸面手稿更诚实？本章解剖 `Challenge.lean` 与 Mathlib `v4.33.1` 的接口契约、8,490 个可复现编译分片，以及多套独立内核校验器的重放机制。
+7. **[第七章 一千七百万行代码的骨架](ch07-anatomy-of-17-million-lines.md)**：回到工程与认识论的地面：一部没人能逐行肉眼读完的形式化证明，为什么能比任何纸面手稿更诚实？本章解剖 27 行 `Challenge.lean` 与 Mathlib `v4.33.1` 的接口契约、8,490 块内容寻址分片的公开 CI 构建、任何人四行命令即可执行的 `./verify` 零信任本地重放与多检验器路线，并配有交互验证实验室与专题短片。
 
 如果你更愿意先花两分多钟把整座证明从头到尾看一遍，可以先看这段导览视频，再走进正文。
 

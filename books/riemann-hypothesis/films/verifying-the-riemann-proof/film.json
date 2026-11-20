@@ -1,0 +1,32 @@
+{
+  "title": "Verifying 17 Million Lines of Lean",
+  "title_zh": "如何验证一千七百万行黎曼猜想证明",
+  "summary": "175,187 Lean files and 17,374,215 lines with no comments: no referee can read them, so do not trust them, replay them. The 27-line Challenge.lean fixes the five statements against official Mathlib v4.33.1; ci/plan.py cuts Main into 8,490 SHA-256 content-addressed shards that public CI publishes to open Releases; four commands and leanchecker --fresh let anyone replay them in an empty kernel and audit the axioms; and a six-checker route judges an exported copy offline (rehearsed; the full run is still in progress).",
+  "summary_zh": "175,187 个 Lean 文件、17,374,215 行、没有一行注释：没有审稿人读得完，所以别信它，重放它。27 行的 Challenge.lean 以官方 Mathlib v4.33.1 锁定五条陈述；ci/plan.py 把 Main 切成 8,490 块以 SHA-256 内容寻址的分片，由公开 CI 发布到公开 Release；四行命令加上 leanchecker --fresh，让任何人都能在空白内核里重放并审计公理；六个检查器的离线评审路线则审查导出的副本（已完成演练，完整运行仍在进行中）。",
+  "subject": "https://github.com/the-omega-institute/riemann-hypothesis",
+  "publication_basis": "pinned",
+  "released": "2026-11-21",
+  "duration": "2:15",
+  "resolution": "1280x720@30",
+  "style": "trureturing cyberpunk · one pixel per file, the 27-line challenge, 8,490 content-addressed shards, four commands, an empty kernel and six checkers",
+  "narration": {
+    "language": "en",
+    "engine": "Kokoro-82M v1.0 (onnx)",
+    "voice": "af_heart"
+  },
+  "subtitles": [
+    "zh",
+    "en"
+  ],
+  "lean": [
+    "Main.riemannHypothesis",
+    "Main.riemannZeta_eq_zero_re",
+    "Main.LFunction_ne_zero_of_half_lt_re",
+    "Main.LFunction_eq_zero_re",
+    "Main.LFunction_eq_zero_re_of_isPrimitive"
+  ],
+  "outputs": {
+    "narrated_720p": "riemann-hypothesis_verifying-the-riemann-proof_720p_narrated.mp4",
+    "cover": "riemann-hypothesis_verifying-the-riemann-proof_cover.jpg"
+  }
+}

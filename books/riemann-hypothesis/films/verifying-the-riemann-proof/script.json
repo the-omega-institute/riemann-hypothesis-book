@@ -1,0 +1,61 @@
+{
+  "voice": "af_heart",
+  "speed": 0.95,
+  "say": {
+    "leanchecker --fresh": "leen checker, fresh,",
+    "lean4lean": "leen for leen",
+    "Challenge.lean": "Challenge dot leen",
+    "Audit.lean": "Audit dot leen",
+    "BuildAid.D1": "Build Aid, D one",
+    "--build-missing": "build missing",
+    "SHA-256": "shah two fifty-six",
+    "8,490": "eight thousand four hundred and ninety",
+    "529": "five hundred and twenty-nine",
+    "Mathlib": "Math-lib",
+    "nanoda": "nah-noh-dah",
+    "con-leche": "con lay-chay",
+    "con-ron": "con ron",
+    "GitHub": "Git Hub",
+    "Dirichlet": "Dirishlay",
+    "L-functions": "L functions",
+    "CI": "C I",
+    "Lean": "Leen"
+  },
+  "music": {"bpm": 82, "progression": "a-minor"},
+  "scenes": [
+    {"id": "replay", "name": "DON'T TRUST, REPLAY", "lead": 2.0, "tail": 0.5, "music": [0.9, 0.3, 0.2, 0.0, 0.1], "lines": [
+      ["A hundred seventy-five thousand files. Seventeen million lines. Not one comment.", "十七万五千个文件，一千七百万行代码，没有一行注释。"],
+      ["Read one line a second, nonstop, and you'd need two hundred days.", "每秒读一行、昼夜不停，也要读上两百天。"],
+      ["A referee would drown. A kernel never skips a step.", "审稿人会被淹没；内核却从不跳过任何一步。"],
+      ["So don't trust us. Replay it.", "所以，别相信我们——自己重放一遍。"]
+    ], "cues": [{"line": 3, "at": 1.1, "kind": "stamp"}]},
+    {"id": "challenge", "name": "THE 27-LINE CHALLENGE", "lead": 0.5, "tail": 0.5, "music": [0.9, 0.5, 0.6, 0.2, 0.2], "lines": [
+      ["The contract, Challenge.lean: twenty-seven lines, importing only official Mathlib.", "先看契约 Challenge.lean：二十七行，只导入官方 Mathlib。"],
+      ["It states five theorems, the Riemann hypothesis and four on Dirichlet L-functions, and proves none.", "它写下五条定理：黎曼猜想与四条狄利克雷 L 函数陈述，却一条也不证明。"],
+      ["Main must prove exactly those types. Alter one symbol, and the match fails.", "Main 必须证明一模一样的类型；改动一个符号，比对就会失败。"]
+    ], "cues": [{"line": 2, "at": 2.4, "kind": "glitch"}]},
+    {"id": "shards", "name": "8,490 SHARDS IN PUBLIC CI", "lead": 0.5, "tail": 0.5, "music": [0.9, 0.8, 0.9, 0.6, 0.5], "lines": [
+      ["No laptop builds this in one go, so a planner cuts it into 8,490 shards on thirty-six levels.", "没有笔记本能一口气编译完；规划器把它切成 8,490 块分片，共 36 层。"],
+      ["Each shard is named by a SHA-256 hash of its toolchain, its sources and the shards below.", "每块分片都以 SHA-256 哈希命名：哈希的是工具链、源文件，以及它下方的分片。"],
+      ["Seventeen foundations unlock 529 jobs at once. Public CI publishes each finished shard.", "17 块地基分片一落成，就同时放开 529 个任务；公开 CI 每完成一块就发布一块。"]
+    ], "cues": [{"line": 1, "at": 3.6, "kind": "chime"}]},
+    {"id": "four", "name": "FOUR LINES FOR ANYONE", "lead": 0.5, "tail": 0.5, "music": [0.8, 0.6, 0.8, 0.4, 0.4], "lines": [
+      ["Checking it yourself takes four lines: clone, step in, check the status, verify Main.", "亲自检查只需四行：克隆、进入目录、查看状态、验证 Main。"],
+      ["Downloads come from public Releases: no GitHub account needed.", "下载全部来自公开 Release：无需 GitHub 账号。"],
+      ["To test the path now, verify BuildAid.D1. Shards missing? --build-missing compiles them.", "现在试通路径：验证 BuildAid.D1；分片不全？用 --build-missing 本地编译。"]
+    ]},
+    {"id": "fresh", "name": "ZERO-TRUST FRESH REPLAY", "lead": 0.5, "tail": 0.5, "music": [1.0, 0.8, 0.7, 0.5, 0.4], "lines": [
+      ["Why trust files our CI compiled? Don't.", "凭什么相信我们 CI 编译出的文件？别信。"],
+      ["The SHA-256 check proves only that you got what CI published.", "SHA-256 校验只证明一件事：你拿到的正是 CI 发布的那一份。"],
+      ["Trust comes from leanchecker --fresh: an empty kernel re-checks every declaration on your machine.", "信任来自 leanchecker --fresh：你机器上的空白内核，把每条声明重新检查一遍。"],
+      ["Forge one proof, and the replay rejects it.", "伪造一个证明，重放当场拒绝。"],
+      ["Then Audit.lean lists the axioms behind all five theorems. Only three may appear; a sorry would show.", "最后 Audit.lean 列出五条定理的公理：只许三条，藏起来的 sorry 会现形。"]
+    ], "cues": [{"line": 3, "at": 1.4, "kind": "impact"}]},
+    {"id": "six", "name": "SIX INDEPENDENT CHECKERS", "lead": 0.5, "tail": 3.6, "music": [1.0, 0.7, 0.6, 0.4, 0.3], "lines": [
+      ["One kernel is one witness. So the proof is exported, an estimated seventy gigabytes, and judged offline.", "一个内核只是一位证人。所以证明还要导出（估计约七十 GB），离线受审。"],
+      ["Six checkers rule: Lean's kernel, its paranoid checker, nanoda, con-leche, con-ron and lean4lean.", "六个检查器共同裁决：Lean 内核、paranoid 检查器、nanoda、con-leche、con-ron 和 lean4lean。"],
+      ["In rehearsal, a wrong statement, a sorry, an extra axiom and a swapped proof were all rejected.", "演练中，错误的陈述、sorry、多余的公理、被调包的证明，全部被拒。"],
+      ["On the full proof, that pipeline is still running. Don't wait for us. Replay it.", "对完整证明而言，这条流水线仍在运行。不必等我们——自己重放。"]
+    ], "cues": [{"line": 2, "at": 3.0, "kind": "glitch"}, {"line": 3, "at": 5.4, "kind": "stamp"}]}
+  ]
+}
