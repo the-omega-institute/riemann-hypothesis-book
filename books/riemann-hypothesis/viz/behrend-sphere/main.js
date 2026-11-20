@@ -168,13 +168,13 @@
     }
     // labels: pushed out of the cube's outline along the line from its centre, with a hairline back to the point
     const narrow = view.W < 520, items = [];
-    if (S.a) items.push({ k: 'a', p: S.a, html: 'a', cls: 'num c-am backed' });
-    if (S.b) items.push({ k: 'b', p: S.b, html: 'b', cls: 'num c-am backed' });
-    if (pr) items.push({ k: 'm', p: pr.m, html: narrow ? 'm' : 'm = (a + b)/2', cls: 'num c-mg backed', across: [pr.a, pr.b] });
-    if (R > 0 && !narrow) { const g = glassAnchor(R, e); if (g) items.push({ k: 'shell', p: g, html: `‖x‖² = ${R}`, cls: 'num c-cy backed' }); }
-    ['x', 'y', 'z'].forEach((name, k) => { const p = [0, 0, 0]; p[k] = e; items.push({ k: name, p, html: name, cls: 'num backed', axis: true }); });
+    if (S.a) items.push({ k: 'a', p: S.a, text: 'a', cls: 'num c-am backed' });
+    if (S.b) items.push({ k: 'b', p: S.b, text: 'b', cls: 'num c-am backed' });
+    if (pr) items.push({ k: 'm', p: pr.m, text: narrow ? 'm' : 'm = (a + b)/2', cls: 'num c-mg backed', across: [pr.a, pr.b] });
+    if (R > 0 && !narrow) { const g = glassAnchor(R, e); if (g) items.push({ k: 'shell', p: g, text: `‖x‖² = ${R}`, cls: 'num c-cy backed' }); }
+    ['x', 'y', 'z'].forEach((name, k) => { const p = [0, 0, 0]; p[k] = e; items.push({ k: name, p, text: name, cls: 'num backed', axis: true }); });
     drawnLabels = placeLabels(items, view);
-    drawnLabels.forEach((t) => sc.tag(t.k, [t.x, t.y], t.html, t.cls, { screen: true }));
+    drawnLabels.forEach((t) => sc.tag(t.k, [t.x, t.y], t.text, t.cls, { screen: true }));
     sc.end();
     drawOverlay(view);
   }
@@ -212,10 +212,10 @@
     return best;
   }
   let measure = null;
-  function size(html) {
+  function size(text) {
     if (!measure) measure = document.createElement('canvas').getContext('2d');
     measure.font = `11.5px ${TRV.fonts.data}`;
-    return [Math.ceil(measure.measureText(html.replace(/<[^>]+>/g, '')).width) + 12, 20];
+    return [Math.ceil(measure.measureText(String(text)).width) + 12, 20];
   }
   function placeLabels(items, view) {
     const { W, H } = view, corners = [];
@@ -225,7 +225,7 @@
     const free = (b) => b.l >= 4 && b.t >= 4 && b.r <= W - 4 && b.b <= H - 4 && taken.every((o) => b.r + 3 <= o.l || b.l - 3 >= o.r || b.b + 3 <= o.t || b.t - 3 >= o.b);
     const boxAt = (x, y, w, hh) => ({ l: x - w / 2, t: y - hh / 2, r: x + w / 2, b: y + hh / 2 });
     for (const it of items) {
-      const q = sc.p(world(it.p)), [w, hh] = size(it.html);
+      const q = sc.p(world(it.p)), [w, hh] = size(it.text);
       let ang = Math.atan2(q[1] - c[1], q[0] - c[0]);
       if (Math.hypot(q[0] - c[0], q[1] - c[1]) < 2) ang = -HALF_PI;
       if (it.across) {   // the midpoint: off to the side of its chord, so that its hairline does not run along it
