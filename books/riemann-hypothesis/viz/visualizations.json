@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "visualizations": [
+    {
+      "id": "critical-mirror",
+      "code": "ZETA//MIRROR",
+      "title": "临界之镜 · Re(s) = 1/2 把离线零点映成孪生，离线零点会冲破 √x 的堤坝",
+      "title_en": "Critical mirror · Re(s) = 1/2 mirrors every off-line zero into a twin, and an off-line zero would break the √x barrier",
+      "summary": "拖动假想零点 ρ = σ + it，观察函数方程如何把它映到 (1 − σ) + it。多余欧拉因子的零点示例沿 Re(s) = 0 排列。素数影子场景逐项计算冯·曼戈尔特函数的平滑和，并展示实部为 0.78 的假想零点所激起的波如何在 x ≈ 67 越过图中的 0.05√x 屏障。",
+      "summary_en": "Drag a hypothetical zero ρ = σ + it to see how the functional equation reflects it to (1 − σ) + it. The illustrated zeros of extra Euler factors line up on Re(s) = 0. The prime-shadow scene computes a smoothed sum of the von Mangoldt function term by term and shows how the wave from a hypothetical zero with real part 0.78 crosses the plotted 0.05√x barrier near x ≈ 67.",
+      "path": "critical-mirror/",
+      "thumbnail": "critical-mirror/thumb.jpg",
+      "status": "live",
+      "added": "2026-11-21",
+      "tags": ["黎曼 ζ 函数", "临界线", "函数方程", "欧拉因子", "朗道判据", "第一章", "第二章"],
+      "tags_en": ["Riemann zeta function", "critical line", "functional equation", "Euler factors", "Landau criterion", "chapter 1", "chapter 2"],
+      "theory": [
+        {
+          "label": "本书第一章 · 右半平面清空即得黎曼猜想",
+          "label_en": "Chapter 1 of this book · Clearing the right half-plane implies the Riemann Hypothesis",
+          "href": "../zh/ch01-the-mirror-on-half.html#thm-rh-of-right",
+          "href_en": "../en/ch01-the-mirror-on-half.html#thm-rh-of-right"
+        },
+        {
+          "label": "本书第二章 · 单侧素数和界推出半平面无零点",
+          "label_en": "Chapter 2 of this book · One-sided prime-sum bound implies half-plane nonvanishing",
+          "href": "../zh/ch02-prime-shadow-and-landau.html#thm-zeta-landau",
+          "href_en": "../en/ch02-prime-shadow-and-landau.html#thm-zeta-landau"
+        }
+      ],
+      "lean": [
+        { "gid": "Main.riemannHypothesis" },
+        { "gid": "Formalism/GammaFactorNonvanishing/RhOfRight.Formalism.VW.rh_of_right" },
+        { "gid": "Development/AutomorphicArithmetic/CharacterBoxes/ClaimStrip.Claim.prim_reflect" },
+        { "gid": "Formalism/ZetaNonvanishing/ZetaLandau.Formalism.zetaLandau" }
+      ]
+    },
+    {
+      "id": "theta-chain-budget",
+      "code": "THETA//SLOPE",
+      "title": "Theta 链预算 · √X 面镜子单打独斗卡在 2/3，胶合一族才把屋顶压平",
+      "title_en": "Theta chain budget · a chain of √X mirrors stalls at 2/3 until a glued family flattens the roof",
+      "summary": "沿共用的时间轴调节链长预算 m/√X。Theta 提升链场景展示跷跷板如何把依赖赫克特征的提升周期换成不依赖该特征的贝塞尔周期。示意曲线中，单特征的无零点边界停在 2/3 上方，胶合一族近似正交的特征后可越过 2/3 并趋近 1/2。格斜率场景从秩 7 的滤过点计算 Harder–Narasimhan 多边形，并用最大斜率和体积给出短向量的长度上界。",
+      "summary_en": "Adjust the chain budget m/√X on the shared timeline. The theta-lift scene shows how the seesaw trades a lift period that depends on the Hecke character for a Bessel period independent of it. On the illustrative curves, the zero-free boundary for a single character stalls above 2/3, while gluing a nearly orthogonal family takes it past 2/3 toward 1/2. The lattice scene computes the Harder–Narasimhan polygon of a rank-7 filtration and uses the maximal slope and covolume to bound the length of a short vector.",
+      "path": "theta-chain-budget/",
+      "thumbnail": "theta-chain-budget/thumb.jpg",
+      "status": "live",
+      "added": "2026-11-21",
+      "tags": ["Theta 提升", "贝塞尔周期", "赫克特征", "格斜率", "第四章", "第五章"],
+      "tags_en": ["theta lifts", "Bessel periods", "Hecke characters", "lattice slopes", "chapter 4", "chapter 5"],
+      "theory": [
+        {
+          "label": "本书第四章 · Theta 提升链",
+          "label_en": "Chapter 4 of this book · The theta-lift chain",
+          "href": "../zh/ch04-chain-of-root-x-mirrors.html#sec-ch04-theta-chain",
+          "href_en": "../en/ch04-chain-of-root-x-mirrors.html#sec-ch04-theta-chain"
+        },
+        {
+          "label": "本书第五章 · 胶合赫克特征族跨越 2/3",
+          "label_en": "Chapter 5 of this book · Gluing an integral structure across Hecke characters",
+          "href": "../zh/ch05-breaking-two-thirds.html#sec-ch05-integral-gluing",
+          "href_en": "../en/ch05-breaking-two-thirds.html#sec-ch05-integral-gluing"
+        }
+      ],
+      "lean": [
+        { "gid": "Formalism/ThetaLiftIndependence/FinalThetaLiftAMFKIndep.Formalism.ThetaLiftIndependence.final_gaussOp" },
+        { "gid": "Formalism/FormalDegreeBessel/FinalBF.Formalism.QuantumDeterminants.bigCellMinors" },
+        { "gid": "Formalism/LatticeSlopes/ExistsSaturatedSlopeEqMuMax.Formalism.F.shortVector" },
+        { "gid": "Formalism/LatticeSlopes/ExistsSaturatedSlopeEqMuMax.Formalism.F.muMaxLeMin" }
+      ]
+    },
+    {
+      "id": "behrend-sphere",
+      "code": "SPHERE//SHELL",
+      "title": "贝伦德球壳 · 整数球壳上排不出三项等差数列",
+      "title_en": "Behrend sphere · no three-term progression on an integer shell",
+      "summary": "把立方体 {0, …, M − 1}³ 的格点按 R = x² + y² + z² 分层，球心在立方体的一个角。同一层球壳上任取两点 a ≠ b，中点 m = (a + b)/2 满足 ‖m‖² = R − ‖a − b‖²/4 < R。中点严格落在球内，所以壳上没有三项等差数列。M = 5 时 125 个点分在 32 层非空球壳上，格点最多的 R = 17 有 9 个点。转动玻璃球壳，点两个格点选出 a 与 b。",
+      "summary_en": "Sort the lattice points of the cube {0, …, M − 1}³ into shells R = x² + y² + z², measured from a corner of the cube. Any two distinct points a and b on one shell have a midpoint m = (a + b)/2 with ‖m‖² = R − ‖a − b‖²/4 < R. The midpoint lies strictly inside the sphere, so the shell contains no three-term arithmetic progression. For M = 5 the 125 points lie on 32 nonempty shells, and the most populated shell, R = 17, holds 9 points. Rotate the glass shell and click two lattice points to choose a and b.",
+      "path": "behrend-sphere/",
+      "thumbnail": "behrend-sphere/thumb.jpg",
+      "status": "live",
+      "added": "2026-11-21",
+      "tags": ["贝伦德集合", "三项等差数列", "球壳", "鸽巢原理", "第六章"],
+      "tags_en": ["Behrend sets", "3-term progressions", "spherical shells", "pigeonhole principle", "chapter 6"],
+      "theory": [
+        {
+          "label": "本书第六章 · 为什么整数球壳永远躲得开三项等差数列",
+          "label_en": "Chapter 6 of this book · Why integer shells always avoid three-term progressions",
+          "href": "../zh/ch06-behrend-towers-and-closing-the-net.html#sec-ch06-behrend-sphere",
+          "href_en": "../en/ch06-behrend-towers-and-closing-the-net.html#sec-ch06-behrend-sphere"
+        }
+      ],
+      "lean": [
+        { "gid": "Formalism/BehrendSets/TranslateMean.Formalism.BehrendSets.Final.select" },
+        { "gid": "Formalism/BehrendSets/FinalE.Formalism.BehrendSets.FinalE.trivStab" },
+        { "gid": "Development/AutomorphicArithmetic/CharacterBoxes/MainConclusion.UpperTheory.FinalTheorems.everyCharacter" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="SPHERE//SHELL · Behrend sphere · no three-term progression on an integer shell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SPHERE//SHELL 贝伦德球壳 · 整数球壳上排不出三项等差数列</title>
+<meta name="description" content="把 {0, …, M − 1}³ 的格点按 x² + y² + z² = R 分层：同一层球壳上任取两点 a ≠ b，中点 m = (a + b)/2 满足 ‖m‖² = R − ‖a − b‖²/4 &lt; R，总陷在球里，所以壳上没有三项等差数列；M = 5 时 125 个点分在 32 层上，最胖的 R = 17 有 9 个点。Sort the lattice points of {0, …, M − 1}³ into shells x² + y² + z² = R: for any two points a ≠ b of one shell the midpoint m = (a + b)/2 has ‖m‖² = R − ‖a − b‖²/4 &lt; R, so it sinks inside the ball and the shell holds no three-term progression; for M = 5 the 125 points lie on 32 shells and the fattest, R = 17, has 9.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Source+Sans+3:ital,wght@0,400..700;1,400..700&display=swap">
+<link rel="stylesheet" href="../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../assets/shell.js"></script>
+<script src="../assets/kit.js"></script>
+</head>
+<body data-viz-id="behrend-sphere">
+<div class="app lab" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../"><span class="zh">◂ 可视化索引</span><span class="en">◂ Visualizations</span></a>
+      <h1 class="logo" data-text="SPHERE//SHELL">SPHERE<b>//</b>SHELL</h1>
+      <div class="tagline">
+        <span class="zh">贝伦德球壳 · <em>球面往外鼓：同一层壳上任取两点 a、b，中点 (a + b)/2 总陷进球里，所以壳上的格点排不出 a, (a + b)/2, b 这样的三项等差</em></span>
+        <span class="en">Behrend sphere · <em>a sphere bulges outward: for any two points a, b of one shell the midpoint (a + b)/2 sinks inside the ball, so the shell's lattice points never line up as a, (a + b)/2, b</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill hot" id="pillShell"><span class="zh">当前壳</span><span class="en">SHELL</span> <strong>—</strong></span>
+      <span class="pill" id="pillAP"><span class="zh">三项等差</span><span class="en">3-TERM APS</span> <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiments</span><span class="aside">PRESETS</span></h2>
+      <!-- one card = one named situation with one sentence of explanation; a chapter cites it with preset="<id>" -->
+      <div class="presets cards" id="presets">
+        <button class="preset" data-preset="shell-convex" aria-pressed="false"><span class="code">SHELL 17</span><span class="cn zh">玻璃球壳串起 9 个格点</span><span class="cn en">A glass shell through 9 lattice points</span></button>
+        <button class="preset" data-preset="ap-forbidden" aria-pressed="false"><span class="code">MIDPOINT SINKS</span><span class="cn zh">中点陷进球里：没有三项等差</span><span class="cn en">The midpoint sinks: no 3-term progression</span></button>
+        <button class="preset" data-preset="tight-chord" aria-pressed="false"><span class="code">TIGHTEST CHORD</span><span class="cn zh">最近的两点，中点也下沉 1/2</span><span class="cn en">Even the nearest pair sinks by 1/2</span></button>
+        <button class="preset" data-preset="pigeonhole-peak" aria-pressed="false"><span class="code">PIGEONHOLE</span><span class="cn zh">扫过 32 层壳：最胖的是 R = 17</span><span class="cn en">Sweep the 32 shells: the fattest is R = 17</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+    <section class="panel sec" id="ctlPanel">
+      <h2><span class="zh">立方体与球壳</span><span class="en">Cube and shell</span><span class="aside"><span class="zh">点两个青色点选 a、b</span><span class="en">click two cyan points for a, b</span></span></h2>
+      <div class="field">
+        <label for="cube"><span class="zh">立方体边长 M</span><span class="en">Cube side M</span><small class="zh">格点 {0, …, M − 1}³</small><small class="en">lattice points {0, …, M − 1}³</small></label><output id="oCube" for="cube">5</output>
+        <input type="range" id="cube" min="3" max="6" step="1" value="5">
+      </div>
+      <div class="field">
+        <label for="shell"><span class="zh">半径平方 R</span><span class="en">Radius squared R</span><small class="zh">球壳 x² + y² + z² = R，球心在原点</small><small class="en">the shell x² + y² + z² = R, centred at the origin</small></label><output id="oShell" for="shell">17</output>
+        <input type="range" id="shell" min="0" max="48" step="1" value="17">
+      </div>
+      <div class="pair-btns">
+        <button class="chip" id="nextPair"><span class="zh">换一对 a、b</span><span class="en">Next pair a, b</span></button>
+        <button class="chip" id="clearPair"><span class="zh">清除</span><span class="en">Clear</span></button>
+      </div>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage" id="stage" data-thumb aria-label="格点立方体的一角是球心；玻璃球壳 x² + y² + z² = R 穿过立方体，壳上的格点发青光；选中的两点之间的弦与它的中点" data-aria-en="A corner of the lattice cube is the centre of the ball; the glass shell x² + y² + z² = R passes through the cube and the lattice points on it glow cyan; the chord between two chosen points and its midpoint">
+      <canvas class="fill" id="cv"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig"></span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-bl">
+        <span><i class="sw cy"></i><span class="zh">壳上格点 ‖x‖² = R</span><span class="en">on the shell ‖x‖² = R</span></span>
+        <span><i class="sw am"></i><span class="zh">a、b 与弦</span><span class="en">a, b and the chord</span></span>
+        <span><i class="sw mg"></i><span class="zh">中点 m</span><span class="en">midpoint m</span></span>
+        <span><i class="sw dm"></i><span class="zh">其余格点</span><span class="en">other points</span></span>
+      </div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+    <div class="tour" id="tour">
+      <button class="tbtn" data-tour="prev" aria-label="上一个实验" data-aria-en="Previous experiment">◀</button>
+      <div class="what"></div>
+      <button class="tbtn" data-tour="next" aria-label="下一个实验" data-aria-en="Next experiment">▶</button>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2><span class="zh">哪一层壳最胖？</span><span class="en">Which shell is fattest?</span></h2><span id="histMeta"></span></div>
+        <canvas id="hist" aria-label="每个 R 的球壳上有多少格点；点一根柱子换到那一层" data-aria-en="How many lattice points each shell R holds; click a bar to go to that shell"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2><span class="zh">从 a 走到 b：一路都在壳内</span><span class="en">From a to b: inside the whole way</span></h2><span id="chordMeta"></span></div>
+        <canvas id="chord" aria-label="沿弦 a + t(b − a) 走，半径平方随 t 的变化" data-aria-en="The squared radius along the chord a + t(b − a), against t"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数与依据" data-aria-en="Readouts and evidence">
+    <section class="panel sec" id="readouts" aria-live="polite">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">‖m‖² vs R</span></h2>
+      <dl class="ro">
+        <div class="key"><dt><span class="zh">中点的半径平方</span><span class="en">squared radius of the midpoint</span></dt><dd><b id="roKey">—</b><span id="roKeySub"></span></dd></div>
+        <div class="c"><dt><span class="zh">这一层的格点</span><span class="en">points on this shell</span></dt><dd id="roCount">—</dd></div>
+        <div><dt><span class="zh">这一层的三项等差</span><span class="en">3-term APs on this shell</span></dt><dd id="roAP">—</dd></div>
+        <div class="a wide"><dt><span class="zh">选中的两点</span><span class="en">the chosen pair</span></dt><dd id="roPair">—</dd></div>
+        <div class="m"><dt><span class="zh">两点距离平方</span><span class="en">squared distance</span></dt><dd id="roGap">—</dd></div>
+        <div><dt><span class="zh">最胖的壳</span><span class="en">fattest shell</span></dt><dd id="roPeak">—</dd></div>
+        <div class="wide"><dt><span class="zh">立方体</span><span class="en">the cube</span></dt><dd id="roCube">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+    </section>
+    <section class="panel sec" id="evidence">
+      <h2><span class="zh">依据</span><span class="en">Evidence</span><span class="aside">riemann-hypothesis</span></h2>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">立方体 {0, …, 4}³ 的 125 个点、32 层非空球壳、最胖一层 R = 17 的 9 个点、每一层 0 个三项等差，以及每个中点的 ‖m‖²，都由页面用整数逐一枚举算出（M = 3 … 6 同样）。这是有限的数值核对，不是证明，也不代替 Lean 里的渐近定理。</span><span class="en">The 125 points of the cube {0, …, 4}³, its 32 non-empty shells, the 9 points of the fattest shell R = 17, the 0 three-term progressions on every shell and each midpoint's ‖m‖² are found by the page by exact integer enumeration (likewise for M = 3 … 6). A finite numerical check, not a proof, and no substitute for the asymptotic theorems in Lean.</span></span></div>
+      <div class="lean argued"><span class="ok">ARGUED</span><span><span class="zh">中点为什么总在球里：平行四边形公式 ‖(a + b)/2‖² = (‖a‖² + ‖b‖²)/2 − ‖a − b‖²/4 = R − ‖a − b‖²/4 &lt; R（a ≠ b）。贝伦德（1946）把最胖的球壳写成不进位的整数（每位数字小于进制的一半），在 {1, …, N} 里得到不含三项等差、至少 N·exp(−C√log N) 个元素的集合。文献结果，未在本书形式化。</span><span class="en">Why a midpoint is always inside: the parallelogram law ‖(a + b)/2‖² = (‖a‖² + ‖b‖²)/2 − ‖a − b‖²/4 = R − ‖a − b‖²/4 &lt; R (a ≠ b). Behrend (1946) writes the fattest shell as integers whose digits stay below half the base, so that adding two never carries, and obtains a subset of {1, …, N} with no 3-term progression and at least N·exp(−C√log N) elements. Literature result, not formalized in this book.</span></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">第六章引用的挑选定理（页面不演示它）。X 有限，0 ≤ δ ≤ 1，Y ≥ 0，λ &gt; 0 且 2|X|δ(1 − δ) &lt; λ²：存在 T ⊆ X，|T| 与 δ|X| 相差不超过 λ，且 Y(T) ≤ 2·E[Y]（E 是每个元素独立以概率 δ 入选时的期望）。已验证：</span><span class="en">The selection theorem Chapter 6 cites (the page does not illustrate it). For a finite X, 0 ≤ δ ≤ 1, Y ≥ 0 and λ &gt; 0 with 2|X|δ(1 − δ) &lt; λ²: some T ⊆ X has |T| within λ of δ|X| and Y(T) ≤ 2·E[Y] (E: the mean when each element is kept independently with probability δ). Verified: </span><a class="leanref" data-lean-gid="Formalism/BehrendSets/TranslateMean.Formalism.BehrendSets.Final.select" href="#" target="_blank" rel="noopener"><code>select</code></a> <span class="okmark">✓</span></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">第六章引用的平凡稳定子定理（页面不演示它）。E 是数域，g 是素数，[E:ℚ]·k &lt; g − 1：GL<sub>k</sub>(E) 的每个有限 g-子群都是平凡群。已验证：</span><span class="en">The trivial-stabilizer theorem Chapter 6 cites (the page does not illustrate it). For a number field E and a prime g with [E:ℚ]·k &lt; g − 1, every finite g-subgroup of GL<sub>k</sub>(E) is trivial. Verified: </span><a class="leanref" data-lean-gid="Formalism/BehrendSets/FinalE.Formalism.BehrendSets.FinalE.trivStab" href="#" target="_blank" rel="noopener"><code>trivStab</code></a> <span class="okmark">✓</span></span></div>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">第六章收网的定理（页面不演示它）。对每个 N ≥ 1、每个模 N 的狄利克雷特征 χ 与每个 Re s &gt; 1/2 的 s（χ ≠ 1 或 s ≠ 1）：L(χ, s) ≠ 0。已验证：</span><span class="en">The theorem that closes Chapter 6 (the page does not illustrate it). For every N ≥ 1, every Dirichlet character χ mod N and every s with Re s &gt; 1/2 (χ ≠ 1 or s ≠ 1): L(χ, s) ≠ 0. Verified: </span><a class="leanref" data-lean-gid="Development/AutomorphicArithmetic/CharacterBoxes/MainConclusion.UpperTheory.FinalTheorems.everyCharacter" href="#" target="_blank" rel="noopener"><code>everyCharacter</code></a> <span class="okmark">✓</span></span></div>
+      <div class="lean model"><span class="ok">MODEL</span><span><span class="zh">画面的选择：立方体按边长 1 画，球心在它的一个角，即原点 (0, 0, 0)；只画球壳落在立方体里的那一块，三面墙上的浅青色是球的截面。墙、玻璃的颜色与相机角度只为看清，不改变任何格点或半径。</span><span class="en">Choices of the picture: the cube is drawn with edge 1 and the centre of the ball at one of its corners, the origin (0, 0, 0); only the part of the shell inside the cube is drawn, and the pale cyan on the three walls is the ball's cross-section. The walls, the tint of the glass and the camera angles serve legibility and change no lattice point or radius.</span></span></div>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </section>
+  </aside>
+
+  <footer class="rail" id="rail">
+    <div class="transport">
+      <button class="tbtn" id="rew" aria-label="回到起点" data-aria-en="Back to the start">⏮</button>
+      <button class="tbtn" id="play" aria-label="播放 / 暂停" data-aria-en="Play / pause" aria-pressed="false">▶</button>
+      <span class="chips" id="speedChips" role="group" aria-label="播放速度" data-aria-en="Playback speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button><button class="chip" data-speed="1" aria-pressed="true">1×</button><button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </span>
+    </div>
+    <div class="clock">
+      <span class="tau" id="tau"></span>
+      <input type="range" id="now" min="0" max="48" step="any" value="17" aria-label="时间轴：半径平方 R" data-aria-en="Rail: the squared radius R">
+    </div>
+    <div class="keys">
+      <kbd>Space</kbd> <span class="zh">扫过各层壳</span><span class="en">sweep the shells</span> · <kbd>←</kbd><kbd>→</kbd> <span class="zh">R 每次 ±1</span><span class="en">R by ±1</span>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">立方体 {0, …, M − 1}³ 的每个格点都有一个“半径平方” R = x² + y² + z²，球心在立方体的一个角（原点）。同一个 R 的点在同一层球壳上。页面画出一层壳与壳上的格点；读者点两个壳上的点 a、b，就能看见它们的中点陷进球里。本页是数值演示，不是证明。</p>
+      <ol>
+        <li><b>依据的章节。</b><a href="../../zh/ch06-behrend-towers-and-closing-the-net.html#sec-ch06-behrend-sphere" target="_top">第六章 · 为什么整数球壳永远躲得开三项等差数列</a>。</li>
+        <li><b>球面往外鼓。</b>a、b 在同一层壳上且 a ≠ b，则 ‖(a + b)/2‖² = R − ‖a − b‖²/4 &lt; R：中点严格在球里，不可能在壳上。三项等差 a, c, b 要求 c = (a + b)/2，所以一层壳上没有三项等差（ARGUED；页面在 M = 3 … 6 的每一层上逐一核对，NUM）。又因为 ‖a − b‖² = 2R − 2a·b 是偶数，中点至少下沉 1/2。</li>
+        <li><b>鸽巢。</b>M = 5 时 125 个点只落在 32 层非空的壳上，必有一层至少 ⌈125/32⌉ = 4 个点；实际最胖的是 R = 17，9 个点。维数升高时，最胖的一层仍占全部点的一个不太小的比例：这是贝伦德（1946）构造的出发点，他把这一层写成不进位的整数，得到 {1, …, N} 中不含三项等差、至少 N·exp(−C√log N) 个元素的集合（ARGUED，文献结果，未在本书形式化）。</li>
+        <li><b>它怎样接到证明里。</b>按第六章的叙述，挑选岩泽塔的层级时要避开“等差共振”，否则相消误差会沿同一条轨道叠加。形式化里用的是更一般的“无小系数线性关系”的集合（<code>Formalism/BehrendSets/Statement.lean</code> 里的定义 <code>BehrendFree</code>：α + β + γ = 0、系数不超过 K 时 αx₁ + βx₂ + γx₃ = 0 只有平凡解；三项等差是 α = γ = 1、β = −2 的情形）。第六章从这一部分引用了 <a class="leanref" data-lean-gid="Formalism/BehrendSets/TranslateMean.Formalism.BehrendSets.Final.select" href="#" target="_blank" rel="noopener"><code>select</code></a> 与 <a class="leanref" data-lean-gid="Formalism/BehrendSets/FinalE.Formalism.BehrendSets.FinalE.trivStab" href="#" target="_blank" rel="noopener"><code>trivStab</code></a>（LEAN ✓），整条链收束于 <a class="leanref" data-lean-gid="Development/AutomorphicArithmetic/CharacterBoxes/MainConclusion.UpperTheory.FinalTheorems.everyCharacter" href="#" target="_blank" rel="noopener"><code>everyCharacter</code></a>（LEAN ✓）。页面不演示这条链，只演示小立方体里经典的球壳把戏。</li>
+        <li><b>示意与简化。</b>立方体的尺寸、墙与玻璃的颜色、相机角度是画面的选择（MODEL）；格点、半径平方、计数与中点都是精确的整数计算。</li>
+      </ol>
+    </div>
+    <div class="en">
+      <p class="lede">Every lattice point of the cube {0, …, M − 1}³ has a squared radius R = x² + y² + z², measured from a corner of the cube, the origin. Points with the same R lie on the same spherical shell. The page draws one shell and its lattice points; click two points a, b of the shell and you see their midpoint sink inside the ball. The page is a numerical illustration, not a proof.</p>
+      <ol>
+        <li><b>The chapter behind it.</b> <a href="../../en/ch06-behrend-towers-and-closing-the-net.html#sec-ch06-behrend-sphere" target="_top">Chapter 6 · why integer shells always avoid three-term progressions</a>.</li>
+        <li><b>A sphere bulges outward.</b> If a and b lie on one shell and a ≠ b, then ‖(a + b)/2‖² = R − ‖a − b‖²/4 &lt; R: the midpoint is strictly inside the ball and cannot be on the shell. A 3-term progression a, c, b needs c = (a + b)/2, so a shell holds none (ARGUED; the page checks every shell for M = 3 … 6 one by one, NUM). And since ‖a − b‖² = 2R − 2a·b is even, a midpoint sinks by at least 1/2.</li>
+        <li><b>Pigeonholes.</b> For M = 5 the 125 points lie on only 32 non-empty shells, so some shell holds at least ⌈125/32⌉ = 4 of them; the fattest, R = 17, holds 9. In higher dimensions the fattest shell still holds a not-too-small share of all the points: that is where Behrend's construction (1946) starts. He writes that shell as integers that never carry and obtains a subset of {1, …, N} with no 3-term progression and at least N·exp(−C√log N) elements (ARGUED: literature result, not formalized in this book).</li>
+        <li><b>How it enters the proof.</b> As Chapter 6 tells it, the levels of the Iwasawa tower must avoid "arithmetic resonance", or cancellation errors pile up along one orbit. The formalization works with a more general kind of set, one with no small linear relation (the definition <code>BehrendFree</code> in <code>Formalism/BehrendSets/Statement.lean</code>: when α + β + γ = 0 and the coefficients are at most K, αx₁ + βx₂ + γx₃ = 0 has only trivial solutions; a 3-term progression is the case α = γ = 1, β = −2). From that part Chapter 6 cites <a class="leanref" data-lean-gid="Formalism/BehrendSets/TranslateMean.Formalism.BehrendSets.Final.select" href="#" target="_blank" rel="noopener"><code>select</code></a> and <a class="leanref" data-lean-gid="Formalism/BehrendSets/FinalE.Formalism.BehrendSets.FinalE.trivStab" href="#" target="_blank" rel="noopener"><code>trivStab</code></a> (LEAN ✓), and the chain ends in <a class="leanref" data-lean-gid="Development/AutomorphicArithmetic/CharacterBoxes/MainConclusion.UpperTheory.FinalTheorems.everyCharacter" href="#" target="_blank" rel="noopener"><code>everyCharacter</code></a> (LEAN ✓). The page does not show that chain; it shows only the classical shell trick in a small cube.</li>
+        <li><b>Models and simplifications.</b> The size of the cube, the colours of the walls and the glass and the camera angles are choices of the picture (MODEL); lattice points, squared radii, counts and midpoints are exact integer computations.</li>
+      </ol>
+    </div>
+  </div>
+</div>
+<script src="main.js"></script>
+</body>
+</html>
