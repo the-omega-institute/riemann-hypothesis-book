@@ -34,6 +34,12 @@ Strip away the scaffolding, and the load-bearing spine comes down to seven clean
 6. **[Chapter 6 Behrend Towers and Closing the Net](ch06-behrend-towers-and-closing-the-net.md)**: Naive Iwasawa towers collide with arithmetic-progression resonances. The proof picks its levels using Behrend's high-dimensional integer sphere shell—strictly convex so no three points ever line up in a 3-term arithmetic progression, yet dense enough to carry the weights. Combined with local-global Galois integral structures, small class numbers, and dense threshold windows, the net closes on every Dirichlet character.
 7. **[Chapter 7 Anatomy of 17 Million Lines](ch07-anatomy-of-17-million-lines.md)**: Back on engineering ground: how do you verify a formal proof too huge for any human to read word for word? We inspect the `Challenge.lean` contract against official Mathlib `v4.33.1`, the 8,490-shard reproducible build, and independent multi-checker kernel replay.
 
+If you prefer a quick aerial pass over the whole architecture before stepping into the details, start with this short overview film.
+
+::: {.film src="critical-line-and-root-x-mirrors"}
+**The Critical Line and $\sqrt{X}$ Mirrors.** A tour of the full proof spine in just over two minutes: the critical-line mirror, the prime shadow and Landau's trap, algebraic multiplicities over the integers, the chain of roughly $\sqrt{X}$ theta lifts, the flattened Harder–Narasimhan roof, and Behrend's sphere, landing on the verified Lean theorem `riemannHypothesis`.
+:::
+
 ## 0.2 How to Read This Book and Our Evidence Contract {#sec-prelude-evidence}
 
 You do not need prior fluency in automorphic representations, Iwasawa theory, or Galois cohomology. Every chapter opens with a concrete toy calculation you can follow with pencil and paper—the prime sum at $x = 10$, nine lattice points on a 3D sphere shell, a four-segment slope roof—before stepping up to the exact theorem statement and its Lean source link.
