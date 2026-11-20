@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="PROOF//REPLAY · Proof replay · 8,490 content-addressed shards, and anyone can replay Main in an empty kernel">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PROOF//REPLAY 证明重放 · 8,490 个内容寻址分片，任何人都能在空白内核里重放 Main</title>
+<meta name="description" content="两个场景。分片 DAG：CI 把 Main 的真实导入闭包切成 8,490 个分片、36 层依赖，首批 17 个编译键之后立刻有 529 个任务并行；时间轴推着 CI 波从青色变绿，点任一分片看它的依赖锥，并模拟改动它：只有通往 Main 的失效锥要重建，其余分片凭内容键原样复用。零信任重放：读者在自己的机器上运行 ./verify Main，从 16 个 Release 拉回分片，经 SHA-256、空白内核、公理审计与 Challenge 陈述四道关，再到六个独立校验器；在“试着作弊”里注入伪造的 .olean、偷塞的 sorry 或改写的陈述，看哪一道关当场拦下。Two scenes. Shard DAG: CI cuts the real import closure of Main into 8,490 shards over 36 dependency levels, with 529 jobs eligible right after the first 17 compilation keys; the rail drives the CI wave from cyan to green, and clicking a shard shows its dependency cone and simulates an edit: only the invalidation cone up to Main is rebuilt, every other shard is reused by its content key. Zero-trust replay: a reader runs ./verify Main on their own machine, pulls the shards from 16 Releases and passes four gates (SHA-256, an empty kernel, an axiom audit and the Challenge statements) before six independent checkers; the fault injector plants a forged .olean, a smuggled sorry or a tweaked statement and shows which gate stops it cold.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Source+Sans+3:ital,wght@0,400..700;1,400..700&display=swap">
+<link rel="stylesheet" href="../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../assets/shell.js"></script>
+<script src="../assets/kit.js"></script>
+</head>
+<body data-viz-id="proof-replay">
+<div class="app lab" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../"><span class="zh">◂ 可视化索引</span><span class="en">◂ Visualizations</span></a>
+      <h1 class="logo" data-text="PROOF//REPLAY">PROOF<b>//</b>REPLAY</h1>
+      <div class="tagline">
+        <span class="zh">证明重放 · <em>别信 CI，也别信作者：把 8,490 个分片拉回自己的机器，在空白内核里重放一遍；任何一句谎言都会在某一道关口当场被拦下</em></span>
+        <span class="en">Proof replay · <em>trust neither CI nor the author: pull the 8,490 shards onto your own machine and replay them in an empty kernel; every lie is stopped cold at some gate</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill hot" id="pillLevel"><span class="zh">CI 层</span><span class="en">CI level</span> <strong>—</strong></span>
+      <span class="pill" id="pillGate"><span class="zh">判决</span><span class="en">Verdict</span> <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiments</span><span class="aside">PRESETS</span></h2>
+      <div class="presets cards" id="presets">
+        <button class="preset" data-preset="dag-shards" aria-pressed="false"><span class="code">DAG SHARDS</span><span class="cn zh">8,490 个分片、36 层：17 个基础分片之后，529 个任务同时开工</span><span class="cn en">8,490 shards over 36 levels: after 17 foundations, 529 jobs start at once</span></button>
+        <button class="preset" data-preset="ci-wave" aria-pressed="false"><span class="code">CI WAVE</span><span class="cn zh">改一个模块：只重建通往 Main 的失效锥，其余凭内容键复用</span><span class="cn en">Edit one module: only the cone up to Main is rebuilt, the rest is reused by key</span></button>
+        <button class="preset" data-preset="fresh-replay" aria-pressed="false"><span class="code">FRESH REPLAY</span><span class="cn zh">./verify Main：四道关全部放行，六个校验器一致</span><span class="cn en">./verify Main: all four gates pass, six checkers agree</span></button>
+        <button class="preset" data-preset="tamper-caught" aria-pressed="false"><span class="code">TAMPER CAUGHT</span><span class="cn zh">CI 连校验和一起伪造：SHA-256 放行，空白内核当场拒绝</span><span class="cn en">CI forges the checksum too: SHA-256 passes, the empty kernel refuses</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec" id="ciPanel">
+      <h2><span class="zh">CI 与改动</span><span class="en">CI and edits</span><span class="aside">SCENE 1</span></h2>
+      <div class="field">
+        <label for="ciLevel"><span class="zh">CI 进度 / 层</span><span class="en">CI progress / level</span><small class="zh">场景一的时间轴</small><small class="en">the rail of scene 1</small></label><output id="oLevel" for="ciLevel">—</output>
+        <input type="range" id="ciLevel" min="0" max="36" step="0.01" value="1.5">
+      </div>
+      <div class="pr-row"><button class="chip" id="clearEdit" disabled><span class="zh">撤销改动</span><span class="en">Undo the edit</span></button></div>
+      <p class="note"><span class="zh">点舞台上任意一个分片：青色圈出它导入的一切（依赖锥），品红是改动它之后必须重建的一切（失效锥，直到 Main）；锥外的分片内容键不变，原样复用。</span><span class="en">Click any shard on the stage: cyan rings mark everything it imports (its dependency cone), magenta everything that must be rebuilt once it is edited (its invalidation cone, up to Main); outside the cone the content keys do not change and the shards are reused as they are.</span></p>
+    </section>
+
+    <section class="panel sec" id="faultPanel">
+      <h2><span class="zh">试着作弊</span><span class="en">Try to cheat</span><span class="aside">FAULT INJECTOR</span></h2>
+      <div class="chips pr-faults" id="faultChips" role="group" aria-label="注入的谎言" data-aria-en="Injected lie">
+        <button class="chip" data-fault="clean" aria-pressed="true"><span class="zh">诚实的证明</span><span class="en">Valid proof</span></button>
+        <button class="chip" data-fault="forged-olean" aria-pressed="false"><span class="zh">伪造 .olean</span><span class="en">Forged .olean</span></button>
+        <button class="chip" data-fault="extra-axiom" aria-pressed="false"><span class="zh">偷塞 sorry</span><span class="en">Smuggled sorry</span></button>
+        <button class="chip" data-fault="wrong-stmt" aria-pressed="false"><span class="zh">改写陈述</span><span class="en">Tweaked statement</span></button>
+      </div>
+      <div class="pr-row"><button class="chip" id="forgeSum" aria-pressed="false"><span class="zh">伪造者连 Release 校验和一起改</span><span class="en">The forger rewrites the Release checksum too</span></button></div>
+      <p class="note"><span class="zh">选一种谎言，重放从头开始；也可以直接点舞台上的关口，看它专门拦哪一种。按 F 轮换。</span><span class="en">Pick a lie and the replay starts over; or click a gate on the stage to see which lie it is there to stop. F cycles through them.</span></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage still" id="stage" data-thumb aria-label="舞台：8,490 个内容寻址分片组成的 36 层依赖图与 CI 波；或读者本机上的零信任重放路线与六个校验器" data-aria-en="Stage: the 36-level dependency graph of 8,490 content-addressed shards and the CI wave; or the zero-trust replay route on the reader's machine and the six checkers">
+      <canvas class="fill" id="cv"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig"></span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="sceneChips" role="group" aria-label="场景" data-aria-en="Scene">
+        <button class="chip" data-scene="dag" aria-pressed="true" aria-label="场景一：分片 DAG 与 CI 波" data-aria-en="Scene 1: shard DAG and CI wave"><span class="zh">分片 DAG 与 CI 波</span><span class="en">Shard DAG &amp; CI</span></button>
+        <button class="chip" data-scene="replay" aria-pressed="false" aria-label="场景二：零信任重放" data-aria-en="Scene 2: zero-trust replay"><span class="zh">零信任重放</span><span class="en">Zero-trust replay</span></button>
+      </div>
+      <div class="hud-bl" id="legend"></div>
+    </div>
+    <div class="tour" id="tour">
+      <button class="tbtn" data-tour="prev" aria-label="上一个实验" data-aria-en="Previous experiment">◀</button>
+      <div class="what"></div>
+      <button class="tbtn" data-tour="next" aria-label="下一个实验" data-aria-en="Next experiment">▶</button>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="waveTitle"></h2><span id="waveMeta"></span></div>
+        <canvas id="plotWave" aria-label="36 层分片波前：每一层有多少个分片可以并行编译" data-aria-en="The 36-level shard wavefront: how many shards of each level can be compiled at once"></canvas>
+      </section>
+      <section class="panel">
+        <div class="head"><h2 id="gateTitle"></h2><span id="gateMeta"></span></div>
+        <canvas id="plotGates" aria-label="四根支柱对三种谎言：哪一根拦下哪一种" data-aria-en="Four pillars against three lies: which pillar stops which"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数与依据" data-aria-en="Readouts and evidence">
+    <section class="panel sec" id="readouts" aria-live="polite">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">8,490 · 36 · 529</span></h2>
+      <dl class="ro">
+        <div class="key"><dt id="roKeyLabel"></dt><dd><b id="roKey">—</b><span id="roKeySub"></span></dd></div>
+        <div><dt id="roL1"></dt><dd id="roV1">—</dd></div>
+        <div><dt id="roL2"></dt><dd id="roV2">—</dd></div>
+        <div><dt id="roL3"></dt><dd id="roV3">—</dd></div>
+        <div><dt id="roL4"></dt><dd id="roV4">—</dd></div>
+        <div class="wide"><dt id="roL5"></dt><dd id="roV5">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">这条路线最后要放行的，是 <code>Main.lean</code> 的五条顶层定理（按 Lean 签名）：Mathlib 的 <code>RiemannHypothesis</code>（ζ(s) = 0、s 不是负偶数、s ≠ 1 ⇒ Re(s) = 1/2）；同一结论逐字写出的 <code>RiemannZetaZerosOnLine</code>；对每个模 N 与每个狄利克雷特征 χ，Re(s) &gt; 1/2 时 L(χ, s) ≠ 0（χ = 1 且 s = 1 除外）；0 &lt; Re(s) &lt; 1 内 L(χ, s) = 0 ⇒ Re(s) = 1/2；本原特征同理。已由 Lean 内核验证：</span><span class="en">What this route must finally let through are the five headline theorems of <code>Main.lean</code>, as Lean states them: Mathlib's <code>RiemannHypothesis</code> (ζ(s) = 0, s not a negative even integer and s ≠ 1 ⇒ Re(s) = 1/2); the same conclusion written out as <code>RiemannZetaZerosOnLine</code>; for every modulus N and every Dirichlet character χ, L(χ, s) ≠ 0 when Re(s) &gt; 1/2 (except χ = 1 at s = 1); L(χ, s) = 0 with 0 &lt; Re(s) &lt; 1 ⇒ Re(s) = 1/2; and the same for primitive characters. Verified by the Lean kernel: </span><a class="leanref lean-ref" data-lean-gid="Main.riemannHypothesis" href="#" target="_blank" rel="noopener"><code>riemannHypothesis</code></a> · <a class="leanref lean-ref" data-lean-gid="Main.riemannZeta_eq_zero_re" href="#" target="_blank" rel="noopener"><code>riemannZeta_eq_zero_re</code></a> · <a class="leanref lean-ref" data-lean-gid="Main.LFunction_ne_zero_of_half_lt_re" href="#" target="_blank" rel="noopener"><code>LFunction_ne_zero_of_half_lt_re</code></a> · <a class="leanref lean-ref" data-lean-gid="Main.LFunction_eq_zero_re" href="#" target="_blank" rel="noopener"><code>LFunction_eq_zero_re</code></a> · <a class="leanref lean-ref" data-lean-gid="Main.LFunction_eq_zero_re_of_isPrimitive" href="#" target="_blank" rel="noopener"><code>LFunction_eq_zero_re_of_isPrimitive</code></a></span></div>
+    </section>
+
+    <section class="panel sec" id="evidence">
+      <h2><span class="zh">依据</span><span class="en">Evidence</span><span class="aside">Lean · NUM · MODEL</span></h2>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">上游仓库 the-omega-institute/riemann-hypothesis 的真实数字，不是证明：175,187 个文件、17,374,215 行；CI 把 Main 的真实导入闭包切成 8,490 个分片（每片至多 400 个模块、2,500,000 字节），共 36 层依赖；首批 17 个编译键之后，立刻有 529 个任务可以并行；分片按内容键的首位十六进制数字发布到 16 个 Release（lean-parts-v1-0 … f）；挑战契约共 35 行（src/Challenge.lean 27 行 + ci/Audit.lean 8 行），钉在 Mathlib v4.33.1（提交 0df444a360ea）；允许的公理只有 propext、Classical.choice、Quot.sound。页面亲手算的：每个示意分片的 SHA-256 内容键、改动之后哪些键变了。</span><span class="en">Real figures of the upstream repository the-omega-institute/riemann-hypothesis, not a proof: 175,187 files and 17,374,215 lines; CI cuts the real import closure of Main into 8,490 shards (at most 400 modules and 2,500,000 bytes each) over 36 dependency levels; after the first 17 compilation keys, 529 jobs are eligible at once; a shard is published to one of 16 Releases (lean-parts-v1-0 … f) by the first hex digit of its content key; the challenge contract is 35 lines (src/Challenge.lean, 27, plus ci/Audit.lean, 8), pinned to Mathlib v4.33.1 (commit 0df444a360ea); the only permitted axioms are propext, Classical.choice and Quot.sound. Computed by the page: the SHA-256 content key of every illustrative shard, and which keys change after an edit.</span></span></div>
+      <div class="lean model"><span class="ok">MODEL</span><span><span class="zh">示意，不是运行记录。舞台上的 299 个点是示意依赖图：每层点数约为该层分片数的平方根除以 1.6，边由固定种子生成，不是真实导入图。36 层里只有第 0 层 17、第 1 层 529、末层 Main 与总数 8,490 是真数；第 2–34 层的 7,943 个分片按 √u·e<sup>−u/6</sup>（u = k − 1）的比例分配、最大余数取整。内容键 = SHA-256(“lean-parts-v1|lean v4.33.1|mathlib 0df444a360ea|shard i|rev r|deps …”)，真算，但格式是示意。场景二的路线与各关判决按上游 README 与 verification/NOTES.md 描述的规则画出：在小测试项目上，错误陈述、sorry 与额外公理都在任何内核运行之前被拒，导出里被调包的证明被每个内核拒绝。Comparator 在整个提交上的完整运行是数小时的长任务，本页不声称它已完成。</span><span class="en">An illustration, not a log of a run. The 299 dots on the stage are an illustrative dependency graph: each level has about √(its shard count)/1.6 dots, and the edges come from a fixed seed, not from the real import graph. Of the 36 levels only level 0 (17), level 1 (529), the last level (Main) and the total 8,490 are real; the other 7,943 shards are shared by levels 2–34 in proportion to √u·e<sup>−u/6</sup> (u = k − 1), rounded by largest remainder. Content key = SHA-256("lean-parts-v1|lean v4.33.1|mathlib 0df444a360ea|shard i|rev r|deps …"), really computed, in an illustrative format. The route of scene 2 and the verdict of each gate follow the rules described in the upstream README and verification/NOTES.md: on a small test project a wrong statement, a sorry and an extra axiom were each rejected before any kernel ran, and a proof swapped inside the export was rejected by every kernel. The full Comparator run on the whole submission is a job of many hours; this page does not claim it has finished.</span></span></div>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </section>
+  </aside>
+
+  <footer class="rail" id="rail">
+    <div class="transport">
+      <button class="tbtn" id="rew" aria-label="回到起点" data-aria-en="Back to the start">⏮</button>
+      <button class="tbtn" id="play" aria-label="播放 / 暂停" data-aria-en="Play / pause" aria-pressed="false">▶</button>
+      <span class="chips" id="speedChips" role="group" aria-label="播放速度" data-aria-en="Playback speed">
+        <button class="chip" data-speed="0.5" aria-pressed="false">0.5×</button><button class="chip" data-speed="1" aria-pressed="true">1×</button><button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </span>
+    </div>
+    <div class="clock">
+      <span class="tau" id="tau"></span>
+      <input type="range" id="now" min="0" max="36" step="any" value="0" aria-label="时间轴：CI 层或重放步骤" data-aria-en="Rail: the CI level or the replay step">
+    </div>
+    <div class="keys">
+      <kbd>Space</kbd> <span class="zh">播放</span><span class="en">play</span> · <kbd>←</kbd><kbd>→</kbd> <span class="zh">一层 / 一步</span><span class="en">one level / step</span> · <kbd>1</kbd> <kbd>2</kbd> <span class="zh">场景</span><span class="en">scene</span> · <kbd>F</kbd> <span class="zh">换一种谎言</span><span class="en">next lie</span>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一份一千七百万行的证明，没有人读得完；但谁都可以让机器替自己从头查一遍。本页把“怎么查”画成两个场景：CI 怎样把 Main 切成可以分头编译、凭内容复用的分片；读者怎样在自己的机器上，不信任 CI、不信任作者，把这些分片重放一遍。本页是示意模型加真实数字，不是证明。</p>
+      <ol>
+        <li><b>分片 DAG（示意）。</b>横轴是依赖层 0 … 35，Main 在最右边独占一层。CI 把 Main 的真实导入闭包切成 8,490 个分片，每片至多 400 个模块、2,500,000 字节；分片的层号就是它最长的导入链。舞台上的 299 个点是按比例缩小的示意图，边由固定种子生成。</li>
+        <li><b>CI 波。</b>时间轴走到第 k 层，第 k 层以下全部编译完（绿色：Lean 在编译时已逐条检查过内核），第 k 层正在编译（琥珀色），其余还在等（青色）。上游 README 写明：首批 17 个编译键之后，立刻有 529 个任务可以并行；剩余路径更长的任务先派发。下方小图是 36 层的波前：两端是真数，中间的形状是示意。</li>
+        <li><b>内容寻址与复用。</b>一个分片的键覆盖它的源码、它所导入分片的键、构建配置、工具链与钉住的依赖包。改动一个模块，它所在分片的键就变了；所有直接或间接导入它的分片，键里都含着它的键，于是也跟着变，一直到 Main（品红的失效锥）。锥外的分片键不变，Release 里现成的产物原样复用（绿色）。页面真的用 SHA-256 算了每个示意分片的键，改动之后变了键的恰好是失效锥。</li>
+        <li><b>零信任重放（示意路线）。</b>读者只需四行：<code>git clone</code>、<code>./verify --status Main</code>、可先试小模块 <code>./verify BuildAid.D1</code>、再 <code>./verify Main</code>。脚本从 16 个 Release 拉回分片，逐片核对 Release 公布的 SHA-256；再用 <code>lake env leanchecker --fresh</code> 在空白的 Lean 环境里把模块及其导入的每条声明重放一遍；最后核对五条顶层定理的公理只落在 propext、Classical.choice、Quot.sound 之内（<code>ci/Audit.lean</code> 用 <code>#print axioms</code> 做同样的事）。</li>
+        <li><b>陈述与多校验器。</b><code>src/Challenge.lean</code> 只依赖 Mathlib v4.33.1（提交 0df444a360ea），写下五条陈述；Comparator 核对 Main 证明的类型与它逐条相同，公理不出那三条，再交给 Lean 4.36 内核与 leanchecker-paranoid、nanoda、con-leche、con-ron 在断网的 bubblewrap 沙盒里各查一遍；lean4lean 用 Lean v4.33.1 另行构建、单独运行。这条多校验器路线在整个提交上的完整运行是数小时的长任务，本页只画它的规则。</li>
+        <li><b>试着作弊。</b>伪造 .olean：下载的字节和 Release 公布的校验和对不上，SHA-256 当场拦下；如果伪造者连 Release 的校验和也一起改了（CI 本身在撒谎），校验和对得上，但空白内核会把调包的证明重新检查一遍并拒绝它，所以下载 CI 的分片不需要信任 CI。偷塞 sorry 或自定义公理：内核接受公理声明，公理审计在闭包里看到 sorryAx 而拒绝。改写陈述：证明本身是对的，内核与公理审计都放行，只有 Challenge 的陈述比对能发现它证的不是那道题。</li>
+      </ol>
+      <p class="lede refs">书中：<a href="../../zh/ch07-anatomy-of-17-million-lines.html#sec-ch07-challenge-contract" target="_top">第七章 · 三十五行挑战契约</a> · <a href="../../zh/ch07-anatomy-of-17-million-lines.html#sec-ch07-shards-and-honesty" target="_top">8,490 块分片与诚实边界声明</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">Nobody can read a proof of seventeen million lines, but anyone can have a machine check it from scratch for them. The page draws how in two scenes: how CI cuts Main into shards that compile separately and are reused by their content, and how a reader replays those shards on their own machine, trusting neither CI nor the author. The page is an illustrative model with real figures, not a proof.</p>
+      <ol>
+        <li><b>Shard DAG (illustrative).</b> The horizontal axis is the dependency level 0 … 35, with Main alone in the last level on the right. CI cuts the real import closure of Main into 8,490 shards of at most 400 modules and 2,500,000 bytes; a shard's level is its longest chain of imports. The 299 dots on the stage are a scaled-down illustration whose edges come from a fixed seed.</li>
+        <li><b>The CI wave.</b> When the rail reaches level k, every level below k is compiled (green: Lean checked each declaration in its kernel while compiling), level k is compiling (amber) and the rest wait (cyan). The upstream README says that 529 jobs are eligible at once after the first 17 compilation keys, and that jobs with longer remaining paths go first. The small plot below is the 36-level wavefront: its ends are real, the shape in between is illustrative.</li>
+        <li><b>Content addressing and reuse.</b> A shard's key covers its sources, the keys of the shards it imports, the build configuration, the toolchain and the pinned packages. Edit one module and the key of its shard changes; every shard that imports it, directly or not, carries that key inside its own, so its key changes too, all the way up to Main (the magenta invalidation cone). Outside the cone the keys stay the same and the outputs already in the Releases are reused (green). The page really computes the SHA-256 key of every illustrative shard, and the keys that change after an edit are exactly the cone.</li>
+        <li><b>Zero-trust replay (illustrative route).</b> A reader needs four lines: <code>git clone</code>, <code>./verify --status Main</code>, optionally the small module <code>./verify BuildAid.D1</code>, then <code>./verify Main</code>. The script pulls the shards from 16 Releases and checks each against the SHA-256 the Release publishes; <code>lake env leanchecker --fresh</code> then replays every declaration of the module and its imports in an empty Lean environment; last, it checks that the five headline theorems use no axioms beyond propext, Classical.choice and Quot.sound (<code>ci/Audit.lean</code> does the same with <code>#print axioms</code>).</li>
+        <li><b>Statements and several checkers.</b> <code>src/Challenge.lean</code> depends on Mathlib v4.33.1 (commit 0df444a360ea) alone and writes down the five statements; Comparator checks that the types proved in Main are those statements, that no axiom beyond the three is used, and hands the proof to the Lean 4.36 kernel and to leanchecker-paranoid, nanoda, con-leche and con-ron in a bubblewrap sandbox without network; lean4lean is built with Lean v4.33.1 and run separately. A full run of this route on the whole submission takes many hours; the page draws its rules only.</li>
+        <li><b>Try to cheat.</b> A forged .olean: the downloaded bytes do not match the checksum the Release publishes, and SHA-256 stops it at once; if the forger also rewrote the Release checksum (CI itself lying), the checksum matches, but the empty kernel checks the swapped proof again and refuses it, which is why downloading CI's shards needs no trust in CI. A smuggled sorry or a custom axiom: the kernel accepts an axiom declaration, and the axiom audit sees sorryAx in the closure and refuses. A tweaked statement: the proof itself is fine, the kernel and the axiom audit let it through, and only the comparison with the Challenge statements finds that it proves a different theorem.</li>
+      </ol>
+      <p class="lede refs">In the book: <a href="../../en/ch07-anatomy-of-17-million-lines.html#sec-ch07-challenge-contract" target="_top">Chapter 7 · the 35-line challenge contract</a> · <a href="../../en/ch07-anatomy-of-17-million-lines.html#sec-ch07-shards-and-honesty" target="_top">8,490 shards and honest boundaries</a></p>
+    </div>
+    <h3 class="evh"><span class="zh">全部依据</span><span class="en">All evidence</span></h3>
+    <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">黎曼猜想，按 Mathlib 的 <code>RiemannHypothesis</code> 陈述：若 ζ(s) = 0，s 不是负偶数，且 s ≠ 1，则 Re(s) = 1/2。已由 Lean 内核验证：</span><span class="en">The Riemann Hypothesis, as Mathlib states it (<code>RiemannHypothesis</code>): if ζ(s) = 0, s is not a negative even integer and s ≠ 1, then Re(s) = 1/2. Verified by the Lean kernel: </span><a class="leanref lean-ref" data-lean-gid="Main.riemannHypothesis" href="#" target="_blank" rel="noopener"><code>riemannHypothesis</code></a></span></div>
+    <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh"><code>RiemannZetaZerosOnLine</code>：对一切复数 s，若 ζ(s) = 0，s 不等于任何 −2(n + 1)（n 为自然数），且 s ≠ 1，则 Re(s) = 1/2。已由 Lean 内核验证：</span><span class="en"><code>RiemannZetaZerosOnLine</code>: for every complex s, if ζ(s) = 0, s is no −2(n + 1) with n a natural number, and s ≠ 1, then Re(s) = 1/2. Verified by the Lean kernel: </span><a class="leanref lean-ref" data-lean-gid="Main.riemannZeta_eq_zero_re" href="#" target="_blank" rel="noopener"><code>riemannZeta_eq_zero_re</code></a></span></div>
+    <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh"><code>DirichletLNonvanishingRightOfHalf</code>：对一切 N ≠ 0、一切模 N 的狄利克雷特征 χ 与一切复数 s，若 1/2 &lt; Re(s)，且 χ ≠ 1 或 s ≠ 1，则 L(χ, s) ≠ 0。已由 Lean 内核验证：</span><span class="en"><code>DirichletLNonvanishingRightOfHalf</code>: for every N ≠ 0, every Dirichlet character χ modulo N and every complex s, if 1/2 &lt; Re(s) and χ ≠ 1 or s ≠ 1, then L(χ, s) ≠ 0. Verified by the Lean kernel: </span><a class="leanref lean-ref" data-lean-gid="Main.LFunction_ne_zero_of_half_lt_re" href="#" target="_blank" rel="noopener"><code>LFunction_ne_zero_of_half_lt_re</code></a></span></div>
+    <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh"><code>DirichletLZerosOnLine</code>：对一切 N ≠ 0、一切模 N 的狄利克雷特征 χ 与一切复数 s，若 0 &lt; Re(s) &lt; 1 且 L(χ, s) = 0，则 Re(s) = 1/2。已由 Lean 内核验证：</span><span class="en"><code>DirichletLZerosOnLine</code>: for every N ≠ 0, every Dirichlet character χ modulo N and every complex s, if 0 &lt; Re(s) &lt; 1 and L(χ, s) = 0, then Re(s) = 1/2. Verified by the Lean kernel: </span><a class="leanref lean-ref" data-lean-gid="Main.LFunction_eq_zero_re" href="#" target="_blank" rel="noopener"><code>LFunction_eq_zero_re</code></a></span></div>
+    <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh"><code>PrimitiveDirichletLZerosOnLine</code>：对一切 N ≠ 0 与一切模 N 的本原狄利克雷特征 χ，以及一切复数 s，若 0 &lt; Re(s) &lt; 1 且 L(χ, s) = 0，则 Re(s) = 1/2。已由 Lean 内核验证：</span><span class="en"><code>PrimitiveDirichletLZerosOnLine</code>: for every N ≠ 0, every primitive Dirichlet character χ modulo N and every complex s, if 0 &lt; Re(s) &lt; 1 and L(χ, s) = 0, then Re(s) = 1/2. Verified by the Lean kernel: </span><a class="leanref lean-ref" data-lean-gid="Main.LFunction_eq_zero_re_of_isPrimitive" href="#" target="_blank" rel="noopener"><code>LFunction_eq_zero_re_of_isPrimitive</code></a></span></div>
+  </div>
+</div>
+<script src="model.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

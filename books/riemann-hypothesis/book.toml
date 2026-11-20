@@ -20,8 +20,8 @@ zh = "一部面向直觉的 Lean 形式化导读"
 en = "An Intuitive Guide to the Formal Proof"
 
 [book.description]
-zh = "本书以一篇序章、七章正文和一篇尾声，循序解读 the-omega-institute/riemann-hypothesis 仓库中黎曼猜想及狄利克雷 L 函数的广义黎曼猜想的 Lean 形式化证明。全书从数学直觉出发梳理证明思路，并配有脚本生成的插图、交互可视化和一部讲解影片。"
-en = "Across seven chapters framed by a prelude and a coda, this monograph builds the mathematical intuition behind the Lean formalization of the proofs of the Riemann Hypothesis and the Generalized Riemann Hypothesis for Dirichlet L-functions in the-omega-institute/riemann-hypothesis. Script-generated figures, interactive visualizations, and an explainer film accompany the text."
+zh = "这部中英双语专著导读 Levent Alpöge 用 Lean 4 完成的黎曼猜想及狄利克雷 L 函数广义黎曼猜想的证明。The Omega Institute 将证明源码托管于 the-omega-institute/riemann-hypothesis，该仓库派生自 Deicyde 的上游验证镜像 Deicyde/riemann-hypothesis。全书由序章、七章正文和尾声组成，配有脚本生成的静态插图（figures/）、四个交互式可视化（viz/）和两部带中英双语字幕的讲解影片（films/）。"
+en = "This bilingual monograph in Chinese and English guides readers through Levent Alpöge's Lean 4 proof of the Riemann Hypothesis and the Generalized Riemann Hypothesis for Dirichlet L-functions. The Omega Institute hosts the proof source in the-omega-institute/riemann-hypothesis, a fork of Deicyde's upstream verification mirror (Deicyde/riemann-hypothesis). The book comprises a prelude, seven chapters, and a coda, with script-generated static figures (figures/), four interactive visualizations (viz/), and two explainer films with Chinese and English subtitles (films/)."
 
 [outputs]
 html = true
