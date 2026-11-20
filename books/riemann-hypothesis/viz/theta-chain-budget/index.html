@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="zh-CN" data-title-en="THETA//SLOPE · Theta chain budget · a chain of √X mirrors stalls at 2/3 until a glued family flattens the roof">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>THETA//SLOPE Theta 链预算 · √X 面镜子单打独斗卡在 2/3，胶合一族才把屋顶压平</title>
+<meta name="description" content="两个场景共用一条时间轴（链长预算 m/√X）。镜链：把 Theta 提升首尾串成 U(X₀) → … → U(Xₘ)，跷跷板把依赖特征的提升周期换成不依赖赫克特征的贝塞尔周期；示意模型中，单特征的零点自由边界 σ 停在 2/3 墙上方，胶合一族近似正交的特征后越过 2/3、贴近 1/2。HN 屋顶：秩 7 的格的 (rk, deg) 滤过点取上凸包，最陡的第一根椽给出 μ_max，Lean 内核验证的短向量定理与 muMaxLeMin 把它换成一枚短向量的长度上界。Two scenes share one rail (the chain budget m/√X). The chain: theta lifts linked as U(X₀) → … → U(Xₘ), and a seesaw that trades the character-laden lifted period for a Hecke-free Bessel period; in an illustrative model the zero-free edge σ of a single character stalls above the 2/3 wall, while a glued, nearly orthogonal family breaks through toward 1/2. The HN roof: the upper concave hull of the (rk, deg) points of a rank-7 filtration, whose steepest first rafter is μ_max; the Lean-verified short-vector theorem and muMaxLeMin turn it into a bound on the length of a short vector.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Source+Sans+3:ital,wght@0,400..700;1,400..700&display=swap">
+<link rel="stylesheet" href="../assets/theme.css">
+<link rel="stylesheet" href="style.css">
+<script src="../assets/shell.js"></script>
+<script src="../assets/kit.js"></script>
+</head>
+<body data-viz-id="theta-chain-budget">
+<div class="app lab" id="app">
+  <header class="top">
+    <div class="brand">
+      <a class="crumb" href="../"><span class="zh">◂ 可视化索引</span><span class="en">◂ Visualizations</span></a>
+      <h1 class="logo" data-text="THETA//SLOPE">THETA<b>//</b>SLOPE</h1>
+      <div class="tagline">
+        <span class="zh">Theta 链预算 · <em>√X 面镜子单打独斗，零点自由边界卡在 2/3；把一族近似正交的特征胶合起来，HN 屋顶被压平，边界才压向 1/2</em></span>
+        <span class="en">Theta chain budget · <em>√X mirrors on one character stall at 2/3; a glued, nearly orthogonal family flattens the HN roof and sinks toward 1/2</em></span>
+      </div>
+    </div>
+    <div class="status" aria-live="polite">
+      <span class="pill hot" id="pillBudget">m/√X <strong>—</strong></span>
+      <span class="pill" id="pillSigma">σ <strong>—</strong></span>
+      <div class="langs" role="group" aria-label="语言 Language"><button data-lang-set="zh" aria-pressed="true">中</button><button data-lang-set="en" aria-pressed="false">EN</button></div>
+    </div>
+  </header>
+
+  <aside class="col deck" aria-label="实验控制" data-aria-en="Experiment controls">
+    <section class="panel sec">
+      <h2><span class="zh">实验卡带</span><span class="en">Experiments</span><span class="aside">PRESETS</span></h2>
+      <div class="presets cards" id="presets">
+        <button class="preset" data-preset="stepanov-m1" aria-pressed="false"><span class="code">STEPANOV m = 1</span><span class="cn zh">只走一步：σ 还高高停在 0.88</span><span class="cn en">One step: σ is still up at 0.88</span></button>
+        <button class="preset" data-preset="two-thirds-wall" aria-pressed="false"><span class="code">2/3 WALL</span><span class="cn zh">单特征推到 m/√X = 3：撞上 2/3 墙</span><span class="cn en">One character to m/√X = 3: the 2/3 wall</span></button>
+        <button class="preset" data-preset="root-x-glued" aria-pressed="false"><span class="code">√X GLUED</span><span class="cn zh">胶合一族（g = 1）：穿过 2/3，贴向 1/2</span><span class="cn en">A glued family (g = 1): through 2/3, toward 1/2</span></button>
+        <button class="preset" data-preset="hn-polygon" aria-pressed="false"><span class="code">HN POLYGON</span><span class="cn zh">秩 7 的屋顶：最陡的椽斜率 1.8</span><span class="cn en">The rank-7 roof: its steepest rafter has slope 1.8</span></button>
+      </div>
+      <p class="note" id="presetNote"></p>
+    </section>
+
+    <section class="panel sec" id="ctlPanel">
+      <h2><span class="zh">三个旋钮</span><span class="en">Three knobs</span><span class="aside">√X = 5</span></h2>
+      <div class="field">
+        <label for="chainBudget"><span class="zh">链长预算 m/√X</span><span class="en">Chain budget m/√X</span><small class="zh">也就是时间轴</small><small class="en">the rail itself</small></label><output id="oBudget" for="chainBudget">—</output>
+        <input type="range" id="chainBudget" min="0" max="4" step="0.01" value="3.5">
+      </div>
+      <div class="field">
+        <label for="gluing"><span class="zh">胶合正交度 g</span><span class="en">Gluing orthogonality g</span><small class="zh">≥ 0.6 才算正交成立</small><small class="en">orthogonal from 0.6 on</small></label><output id="oGluing" for="gluing">—</output>
+        <input type="range" id="gluing" min="0" max="1" step="0.01" value="1">
+      </div>
+      <div class="field">
+        <label for="h1"><span class="zh">第一根椽的度数 h₁</span><span class="en">Degree of the first rafter h₁</span><small class="zh">点 (1, h₁)</small><small class="en">the point (1, h₁)</small></label><output id="oH1" for="h1">—</output>
+        <input type="range" id="h1" min="0.5" max="2.8" step="0.01" value="1.8">
+      </div>
+      <p class="note"><span class="zh">也可以在舞台上直接拖：镜链场景里沿横轴拖预算、点一面镜子；HN 屋顶里上下拖琥珀色的点 (1, h₁)。</span><span class="en">Or drag on the stage: in the chain scene, drag along the budget axis or click a mirror; on the HN roof, drag the amber point (1, h₁) up and down.</span></p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="stage still" id="stage" data-thumb aria-label="舞台：√X 面镜子组成的 Theta 提升链、跷跷板与零点自由预算曲线；或秩 7 格的 Harder–Narasimhan 屋顶" data-aria-en="Stage: the theta-lift chain of √X mirrors, the seesaw and the zero-free budget curves; or the Harder–Narasimhan roof of a rank-7 lattice">
+      <canvas class="fill" id="cv"></canvas>
+      <div class="scan"></div><div class="vig"></div>
+      <span class="bracket tl"></span><span class="bracket tr"></span><span class="bracket bl"></span><span class="bracket br"></span>
+      <div class="hud-tl"><span class="big" id="hudBig"></span><span class="sub" id="hudSub"></span></div>
+      <div class="hud-tr chips" id="sceneChips" role="group" aria-label="场景" data-aria-en="Scene">
+        <button class="chip" data-scene="chain" aria-pressed="true" aria-label="场景一：镜链与 2/3 墙" data-aria-en="Scene 1: chain and 2/3 wall"><span class="zh">镜链与 2/3 墙</span><span class="en">Chain &amp; 2/3 wall</span></button>
+        <button class="chip" data-scene="hn" aria-pressed="false" aria-label="场景二：Harder–Narasimhan 屋顶" data-aria-en="Scene 2: Harder–Narasimhan roof"><span class="zh">HN 屋顶</span><span class="en">HN roof</span></button>
+      </div>
+      <div class="hud-bl" id="legend"></div>
+    </div>
+    <div class="tour" id="tour">
+      <button class="tbtn" data-tour="prev" aria-label="上一个实验" data-aria-en="Previous experiment">◀</button>
+      <div class="what"></div>
+      <button class="tbtn" data-tour="next" aria-label="下一个实验" data-aria-en="Next experiment">▶</button>
+    </div>
+    <div class="strip">
+      <section class="panel">
+        <div class="head"><h2 id="stripTitle"></h2><span id="stripMeta"></span></div>
+        <canvas id="plot" aria-label="另一个场景的小图：在镜链场景里是 HN 屋顶，在 HN 屋顶场景里是预算曲线" data-aria-en="The other scene in small: the HN roof under the chain, the budget curves under the roof"></canvas>
+      </section>
+    </div>
+  </main>
+
+  <aside class="col side" aria-label="读数与依据" data-aria-en="Readouts and evidence">
+    <section class="panel sec" id="readouts" aria-live="polite">
+      <h2><span class="zh">读数</span><span class="en">Readouts</span><span class="aside">X = 25 · rk 7</span></h2>
+      <dl class="ro">
+        <div class="key"><dt id="roKeyLabel"></dt><dd><b id="roKey">—</b><span id="roKeySub"></span></dd></div>
+        <div><dt><span class="zh">链长 m/√X（√X = 5）</span><span class="en">Chain m/√X (√X = 5)</span></dt><dd id="roBudget">—</dd></div>
+        <div><dt><span class="zh">胶合正交度 g</span><span class="en">Gluing orthogonality g</span></dt><dd id="roGluing">—</dd></div>
+        <div><dt><span class="zh">屋顶压平份额 e（示意）</span><span class="en">Share of the roof flattened, e (model)</span></dt><dd id="roFlat">—</dd></div>
+        <div><dt><span class="zh">尖峰 μ<sub>max</sub> − μ(L)</span><span class="en">Spike μ<sub>max</sub> − μ(L)</span></dt><dd id="roSpike">—</dd></div>
+        <div class="wide"><dt><span class="zh">一面镜子倒回去：𝔽₅ 上 gaussOp ∘ gaussOpDual 作用在 v 上</span><span class="en">One mirror undone: gaussOp ∘ gaussOpDual on 𝔽₅, applied to v</span></dt><dd id="roGauss">—</dd></div>
+      </dl>
+      <p class="note" id="roNote"></p>
+      <div class="lean" data-scenes="chain"><span class="ok">LEAN ✓</span><span><span class="zh">有限域高斯算子的对偶反演律：设 𝔽 为有限域，ψ ≠ 1 为加法特征，ρ : 𝔽ˣ → End(V) 为群同态。若 v 满足 Σ<sub>c∈𝔽ˣ</sub> ρ(c)v = 0，则 gaussOp(ψ, ρ)(gaussOpDual(ψ, ρ)(v)) = |𝔽|·v，且 gaussOpDual(ψ, ρ)(gaussOp(ψ, ρ)(v)) = |𝔽|·v。上方读数取 𝔽 = 𝔽₅、V = ℂ、ρ 为 4 阶乘法特征。已冻结：</span><span class="en">The duality inversion of the finite-field Gauss operator: let 𝔽 be a finite field, ψ ≠ 1 an additive character and ρ : 𝔽ˣ → End(V) a group homomorphism. If Σ<sub>c∈𝔽ˣ</sub> ρ(c)v = 0, then gaussOp(ψ, ρ)(gaussOpDual(ψ, ρ)(v)) = |𝔽|·v and gaussOpDual(ψ, ρ)(gaussOp(ψ, ρ)(v)) = |𝔽|·v. The readout above takes 𝔽 = 𝔽₅, V = ℂ and ρ a multiplicative character of order 4. Frozen: </span><a class="leanref" data-lean-gid="Formalism/ThetaLiftIndependence/FinalThetaLiftAMFKIndep.Formalism.ThetaLiftIndependence.final_gaussOp" href="#" target="_blank" rel="noopener"><code>final_gaussOp</code></a></span></div>
+      <div class="lean" data-scenes="chain"><span class="ok">LEAN ✓</span><span><span class="zh">跷跷板积分所用的大胞腔坐标：对满足 inWb 的 z、z′ 与任意 c ∈ ℂ<sup>r</sup>、μ ∈ M<sub>k+1</sub>(ℂ)，bigCell(k, r, c, μ) 的第 l 阶顺序主子式等于 ∏<sub>a&lt;l</sub> c<sub>a</sub>；各 c<sub>a</sub> ≠ 0 时，比值子式还原出 c<sub>a</sub>，配对核等于标准埃尔米特配对。已冻结：</span><span class="en">The big-cell coordinates of the seesaw integral: for z, z′ satisfying inWb and any c ∈ ℂ<sup>r</sup>, μ ∈ M<sub>k+1</sub>(ℂ), the l-th leading principal minor of bigCell(k, r, c, μ) is ∏<sub>a&lt;l</sub> c<sub>a</sub>; when every c<sub>a</sub> ≠ 0 the ratio minors return c<sub>a</sub> and the pairing kernel is the standard Hermitian pairing. Frozen: </span><a class="leanref" data-lean-gid="Formalism/FormalDegreeBessel/FinalBF.Formalism.QuantumDeterminants.bigCellMinors" href="#" target="_blank" rel="noopener"><code>bigCellMinors</code></a></span></div>
+      <div class="lean" data-scenes="hn" hidden><span class="ok">LEAN ✓</span><span><span class="zh">短向量：有限维实内积空间中每个非零离散格 L 都有非零向量 v，满足 ‖v‖ ≤ √rk(L) · covol(L)<sup>1/rk(L)</sup>。屋顶终点 (7, 5) 给出 covol(L) = e<sup>−5</sup>，于是 </span><span class="en">Short vector: every nonzero discrete lattice L in a finite-dimensional real inner product space has a nonzero v with ‖v‖ ≤ √rk(L) · covol(L)<sup>1/rk(L)</sup>. The end of the roof, (7, 5), gives covol(L) = e<sup>−5</sup>, so </span><b id="leanShort">—</b> <span class="okmark">✓</span><span class="zh">。已冻结：</span><span class="en">. Frozen: </span><a class="leanref" data-lean-gid="Formalism/LatticeSlopes/ExistsSaturatedSlopeEqMuMax.Formalism.F.shortVector" href="#" target="_blank" rel="noopener"><code>shortVector</code></a></span></div>
+      <div class="lean" data-scenes="hn" hidden><span class="ok">LEAN ✓</span><span><span class="zh">最小长度压住最大斜率：若非零离散格 L 的一切非零向量都不短于 r &gt; 0，则 μ<sub>max</sub>(L) ≤ −ln r + ½ ln rk(L)。反过来读：最陡的椽越陡，必有越短的非零向量；这里 </span><span class="en">Minimal length bounds the maximal slope: if every nonzero vector of a nonzero discrete lattice L is at least r &gt; 0 long, then μ<sub>max</sub>(L) ≤ −ln r + ½ ln rk(L). Read backwards: the steeper the first rafter, the shorter some nonzero vector must be; here </span><b id="leanMuMax">—</b> <span class="okmark">✓</span><span class="zh">。已冻结：</span><span class="en">. Frozen: </span><a class="leanref" data-lean-gid="Formalism/LatticeSlopes/ExistsSaturatedSlopeEqMuMax.Formalism.F.muMaxLeMin" href="#" target="_blank" rel="noopener"><code>muMaxLeMin</code></a></span></div>
+    </section>
+
+    <section class="panel sec" id="evidence">
+      <h2><span class="zh">依据</span><span class="en">Evidence</span><span class="aside">Lean · NUM · MODEL</span></h2>
+      <div class="lean num"><span class="ok">NUM</span><span><span class="zh">页面算出的数，不是证明：滤过点 (0, 0)、(1, h₁)、(3, 4.4)、(5, 5.4)、(7, 5.0) 取自第五章的手算例子，上凸包、每段斜率、μ<sub>max</sub>、μ(L) = 5/7 与两个半径都按这些点以双精度精确地算（凸包用单调链）；𝔽₅ 上的高斯算子读数逐项求和算出。</span><span class="en">Numbers computed by the page, not a proof: the filtration points (0, 0), (1, h₁), (3, 4.4), (5, 5.4), (7, 5.0) are the worked example of chapter 5, and the upper concave hull, every slope, μ<sub>max</sub>, μ(L) = 5/7 and both radii are computed from them in double precision (the hull by a monotone chain); the Gauss-operator readout on 𝔽₅ is summed term by term.</span></span></div>
+      <div class="lean model"><span class="ok">MODEL</span><span><span class="zh">σ(m/√X) 的两条预算曲线是为画面选的示意缩放，不出自 Lean：单特征 σ₁ = 2/3 + ⅓e<sup>−b/0.45</sup>（b = m/√X），永远在 2/3 之上；胶合族 σ<sub>g</sub> = σ₁ − e/6，压平份额 e = Γ(1 − e<sup>−b/0.45</sup>)，g ≥ 0.6 时 Γ = g，否则 Γ = 0。同一个 e 把 HN 滤过点按比例压向平均斜率线。HN 屋顶本身是精确的凸几何。</span><span class="en">The two budget curves σ(m/√X) are an illustrative scaling chosen for the picture, not taken from Lean: one character gives σ₁ = 2/3 + ⅓e<sup>−b/0.45</sup> (b = m/√X), always above 2/3; a glued family gives σ<sub>g</sub> = σ₁ − e/6 with the flattened share e = Γ(1 − e<sup>−b/0.45</sup>), where Γ = g once g ≥ 0.6 and Γ = 0 below. The same e pulls the HN filtration points toward the mean-slope line. The HN roof itself is exact convex geometry.</span></span></div>
+      <button class="chip" id="infoBtn"><span class="zh">理论接口 DATA SHARD</span><span class="en">DATA SHARD · theory</span></button>
+    </section>
+  </aside>
+
+  <footer class="rail" id="rail">
+    <div class="transport">
+      <button class="tbtn" id="rew" aria-label="回到起点" data-aria-en="Back to the start">⏮</button>
+      <button class="tbtn" id="play" aria-label="播放 / 暂停" data-aria-en="Play / pause" aria-pressed="false">▶</button>
+      <span class="chips" id="speedChips" role="group" aria-label="播放速度" data-aria-en="Playback speed">
+        <button class="chip" data-speed="0.35" aria-pressed="false">0.35×</button><button class="chip" data-speed="1" aria-pressed="true">1×</button><button class="chip" data-speed="2.5" aria-pressed="false">2.5×</button>
+      </span>
+    </div>
+    <div class="clock">
+      <span class="tau" id="tau"></span>
+      <input type="range" id="now" min="0" max="4" step="any" value="0" aria-label="时间轴：链长预算 m/√X" data-aria-en="Rail: the chain budget m/√X">
+    </div>
+    <div class="keys">
+      <kbd>Space</kbd> <span class="zh">播放</span><span class="en">play</span> · <kbd>←</kbd><kbd>→</kbd> <span class="zh">一面镜子</span><span class="en">one mirror</span> · <kbd>1</kbd> <kbd>2</kbd> <span class="zh">场景</span><span class="en">scene</span>
+    </div>
+  </footer>
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="row"><h2 id="drawerTitle"><span class="zh">理论接口 · 这个页面在演示什么</span><span class="en">Theory interface · what this page shows</span></h2><button class="chip" id="drawerClose"><span class="zh">关闭 Esc</span><span class="en">Close Esc</span></button></div>
+    <div class="zh">
+      <p class="lede">一面镜子只照一遍；把 Theta 提升首尾串成一条长廊，每多一面镜子就多一层“导数”。问题是这条链能走多远、走到哪里会被成本吃光。本页把这笔账画成两个场景，共用一条时间轴：链长预算 b = m/√X。本页是数值演示与示意模型，不是证明。</p>
+      <ol>
+        <li><b>镜链。</b>舞台左边是 U(X₀) → U(X₁) → … → U(Xₘ)：每个节点是一次 Theta 提升，取 √X = 5，所以 m = 5b。琥珀色是正在进行的那一步。单特征时链是一根品红的线；胶合正交成立（g ≥ 0.6）时，是三根青色的线在每个节点上胶合在一起。</li>
+        <li><b>跷跷板。</b>链的尽头连着一个紫色菱形：左边的提升周期身上挂着 m 个赫克特征 μ₁ … μₘ，跷跷板把它换成右边的贝塞尔周期，那里一个特征也不剩。积分所用的大胞腔坐标是 Lean 定理 <code>bigCellMinors</code>；把一面“镜子”倒回去只差一个标量 |𝔽|，是 <code>final_gaussOp</code>，读数在 𝔽₅ 上逐项验算。</li>
+        <li><b>2/3 墙（示意模型）。</b>右边的曲线是零点自由边界 σ 随 b 的走向。品红曲线 σ₁ = 2/3 + ⅓e<sup>−b/0.45</sup> 从 σ = 1 出发，b = 0.2（m = 1）时约 0.88，然后贴着 2/3 墙走，永远不越过去。青色曲线 σ<sub>g</sub> = σ₁ − e/6 在胶合正交成立时越过 2/3，贴向绿色的 σ = 1/2 线（第一章引用的 Lean 主定理正是零点都在这条线上；这里的曲线只是示意，不是那条证明）。曲线的形状是为画面选的，不出自任何 Lean 定理。</li>
+        <li><b>HN 屋顶（精确的凸几何）。</b>秩 7 的格 L 里一串饱和子格给出 (rk, deg) 点 (0, 0)、(1, h₁)、(3, 4.4)、(5, 5.4)、(7, 5.0)。页面用单调链算出它们的上凸包：h₁ = 1.8 时四段斜率 1.8 &gt; 1.3 &gt; 0.5 &gt; −0.2，屋顶向上拱起；把 h₁ 拖到 4.4/3 ≈ 1.467 以下，点 (1, h₁) 掉到屋顶下面，凸包直接从 (0, 0) 跨到 (3, 4.4)。琥珀色是最陡的第一根椽，斜率就是 μ<sub>max</sub>；灰色虚线是平均斜率 μ(L) = 5/7 ≈ 0.714。</li>
+        <li><b>屋脊逼出短向量（Lean）。</b><code>shortVector</code>：L 里有非零向量不长于 √rk·covol<sup>1/rk</sup> = √7·e<sup>−5/7</sup> ≈ 1.295。<code>muMaxLeMin</code>：若一切非零向量都不短于 r，则 μ<sub>max</sub> ≤ −ln r + ½ ln 7；所以 μ<sub>max</sub> = 1.8 时，任何大于 √7·e<sup>−1.8</sup> ≈ 0.437 的 r 都做不到这一点，必有更短的非零向量。屋顶越平，两个半径越接近。</li>
+        <li><b>胶合把屋顶压平（示意模型）。</b>同一个份额 e 把每个滤过点按比例压向平均斜率线：deg 变成 deg − e·(deg − 5/7·rk)。这是一个保持凸性的剪切，屋顶的形状不变，只是变平；e → 1 时 μ<sub>max</sub> → 5/7。e 与 g、b 的关系是示意，不是定理。</li>
+      </ol>
+      <p class="lede refs">书中：<a href="../../zh/ch04-chain-of-root-x-mirrors.html#sec-ch04-theta-chain" target="_top">第四章 · Theta 提升链</a> · <a href="../../zh/ch04-chain-of-root-x-mirrors.html#sec-ch04-seesaw-bessel" target="_top">跷跷板法则与大胞腔</a> · <a href="../../zh/ch05-breaking-two-thirds.html#sec-ch05-lattice-slopes" target="_top">第五章 · 格子的屋顶</a> · <a href="../../zh/ch05-breaking-two-thirds.html#sec-ch05-integral-gluing" target="_top">跨特征胶合</a></p>
+    </div>
+    <div class="en">
+      <p class="lede">One mirror shows you once; link the theta lifts into a corridor and every extra mirror buys one more layer of "derivative". The question is how far the chain can go before its cost eats the gain. The page draws that account as two scenes on one rail: the chain budget b = m/√X. The page is a numerical illustration with an illustrative model, not a proof.</p>
+      <ol>
+        <li><b>The chain.</b> On the left of the stage is U(X₀) → U(X₁) → … → U(Xₘ): each node is one theta lift, with √X = 5, so m = 5b. Amber marks the step in progress. With one character the chain is a single magenta line; once the gluing is orthogonal (g ≥ 0.6) it is three cyan lines glued together at every node.</li>
+        <li><b>The seesaw.</b> The end of the chain meets a violet rhombus: the lifted period on its left carries the m Hecke characters μ₁ … μₘ, and the seesaw trades it for the Bessel period on its right, where not one character is left. The big-cell coordinates of that integral are the Lean theorem <code>bigCellMinors</code>; undoing one "mirror" costs only the scalar |𝔽|, which is <code>final_gaussOp</code>, checked term by term on 𝔽₅ in the readouts.</li>
+        <li><b>The 2/3 wall (illustrative model).</b> The curves on the right are the zero-free edge σ as b grows. The magenta curve σ₁ = 2/3 + ⅓e<sup>−b/0.45</sup> starts at σ = 1, is near 0.88 at b = 0.2 (m = 1), then hugs the 2/3 wall and never crosses it. The cyan curve σ<sub>g</sub> = σ₁ − e/6 breaks through 2/3 once the gluing is orthogonal and sinks toward the green line σ = 1/2 (the Lean main theorem cited in chapter 1 puts every zero on that line; the curve here is a picture, not that proof). The shape of the curves is chosen for the picture and comes from no Lean theorem.</li>
+        <li><b>The HN roof (exact convex geometry).</b> A chain of saturated sublattices of a rank-7 lattice L gives the (rk, deg) points (0, 0), (1, h₁), (3, 4.4), (5, 5.4), (7, 5.0). The page computes their upper concave hull with a monotone chain: at h₁ = 1.8 the four slopes are 1.8 &gt; 1.3 &gt; 0.5 &gt; −0.2 and the roof arches upward; drag h₁ below 4.4/3 ≈ 1.467 and the point (1, h₁) drops under the roof, so the hull jumps straight from (0, 0) to (3, 4.4). Amber marks the steepest, first rafter, whose slope is μ<sub>max</sub>; the grey dashed line is the mean slope μ(L) = 5/7 ≈ 0.714.</li>
+        <li><b>The ridge forces a short vector (Lean).</b> <code>shortVector</code>: L has a nonzero vector no longer than √rk·covol<sup>1/rk</sup> = √7·e<sup>−5/7</sup> ≈ 1.295. <code>muMaxLeMin</code>: if every nonzero vector is at least r long, then μ<sub>max</sub> ≤ −ln r + ½ ln 7; so with μ<sub>max</sub> = 1.8 no r above √7·e<sup>−1.8</sup> ≈ 0.437 can do that, and some nonzero vector is shorter. The flatter the roof, the closer the two radii.</li>
+        <li><b>Gluing flattens the roof (illustrative model).</b> The same share e pulls every filtration point toward the mean-slope line: deg becomes deg − e·(deg − 5/7·rk). This shear keeps convexity, so the roof keeps its shape and only gets flatter; as e → 1, μ<sub>max</sub> → 5/7. How e depends on g and b is a picture, not a theorem.</li>
+      </ol>
+      <p class="lede refs">In the book: <a href="../../en/ch04-chain-of-root-x-mirrors.html#sec-ch04-theta-chain" target="_top">Chapter 4 · the theta-lift chain</a> · <a href="../../en/ch04-chain-of-root-x-mirrors.html#sec-ch04-seesaw-bessel" target="_top">the seesaw and the big cell</a> · <a href="../../en/ch05-breaking-two-thirds.html#sec-ch05-lattice-slopes" target="_top">Chapter 5 · the roof of a lattice</a> · <a href="../../en/ch05-breaking-two-thirds.html#sec-ch05-integral-gluing" target="_top">gluing across characters</a></p>
+    </div>
+    <h3 class="evh"><span class="zh">全部依据</span><span class="en">All evidence</span></h3>
+    <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">有限域高斯算子的对偶反演律（ψ ≠ 1，Σ<sub>c</sub> ρ(c)v = 0 时 gaussOp ∘ gaussOpDual 与 gaussOpDual ∘ gaussOp 都把 v 变成 |𝔽|·v）。已冻结：</span><span class="en">The duality inversion of the finite-field Gauss operator (for ψ ≠ 1 and Σ<sub>c</sub> ρ(c)v = 0, both gaussOp ∘ gaussOpDual and gaussOpDual ∘ gaussOp send v to |𝔽|·v). Frozen: </span><a class="leanref" data-lean-gid="Formalism/ThetaLiftIndependence/FinalThetaLiftAMFKIndep.Formalism.ThetaLiftIndependence.final_gaussOp" href="#" target="_blank" rel="noopener"><code>final_gaussOp</code></a></span></div>
+    <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">大胞腔 bigCell(k, r, c, μ) 的第 l 阶顺序主子式等于 ∏<sub>a&lt;l</sub> c<sub>a</sub>，比值子式还原 c<sub>a</sub>，配对核为标准埃尔米特配对。已冻结：</span><span class="en">The l-th leading principal minor of the big cell bigCell(k, r, c, μ) is ∏<sub>a&lt;l</sub> c<sub>a</sub>, the ratio minors return c<sub>a</sub>, and the pairing kernel is the standard Hermitian pairing. Frozen: </span><a class="leanref" data-lean-gid="Formalism/FormalDegreeBessel/FinalBF.Formalism.QuantumDeterminants.bigCellMinors" href="#" target="_blank" rel="noopener"><code>bigCellMinors</code></a></span></div>
+    <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">每个非零离散格 L 都有非零向量 v，‖v‖ ≤ √rk(L)·covol(L)<sup>1/rk(L)</sup>。已冻结：</span><span class="en">Every nonzero discrete lattice L has a nonzero vector v with ‖v‖ ≤ √rk(L)·covol(L)<sup>1/rk(L)</sup>. Frozen: </span><a class="leanref" data-lean-gid="Formalism/LatticeSlopes/ExistsSaturatedSlopeEqMuMax.Formalism.F.shortVector" href="#" target="_blank" rel="noopener"><code>shortVector</code></a></span></div>
+    <div class="lean"><span class="ok">LEAN ✓</span><span><span class="zh">若非零离散格 L 的一切非零向量都不短于 r &gt; 0，则 μ<sub>max</sub>(L) ≤ −ln r + ½ ln rk(L)。已冻结：</span><span class="en">If every nonzero vector of a nonzero discrete lattice L is at least r &gt; 0 long, then μ<sub>max</sub>(L) ≤ −ln r + ½ ln rk(L). Frozen: </span><a class="leanref" data-lean-gid="Formalism/LatticeSlopes/ExistsSaturatedSlopeEqMuMax.Formalism.F.muMaxLeMin" href="#" target="_blank" rel="noopener"><code>muMaxLeMin</code></a></span></div>
+  </div>
+</div>
+<script src="main.js"></script>
+</body>
+</html>

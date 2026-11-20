@@ -1,0 +1,12 @@
+/* SPHERE//SHELL: the shared lab layout (../assets/theme.css) carries the page. Put here only what belongs to this
+   visualization alone; colours come from the tokens (var(--cyan) …), never from hex values. */
+#stage { container-type: inline-size; }
+.stage:not(.still) #cv, .stage:not(.still) canvas.solid-gl { cursor: grab; touch-action: none; }
+#hist { cursor: pointer; }
+.pair-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.pair-btns .chip { flex: 1 1 auto; }
+@container (max-width: 560px) {
+  #stage .hud-tl .big { font-size: 12px; }
+  #stage .hud-tl .sub { font-size: 11px; }
+  #stage .hud-bl { gap: 2px 10px; }
+}

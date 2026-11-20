@@ -1,0 +1,16 @@
+/* THETA//SLOPE: the shared lab layout (../assets/theme.css) carries the page. Only what belongs to this visualization
+   is here; every colour is a token (var(--cyan) …), never a hex value. */
+#cv { cursor: default; }
+#stage { container-type: inline-size; }
+/* amber is kept for the current choice: emphasis in the tagline and the stage title use the neutral accents */
+.tagline em { color: var(--cyan); }
+.hud-tl .big { color: var(--sigma); }
+/* the ladder, the seesaw and the curve need some height in a short full lab; a cited figure fits its frame */
+.lab .center > #stage { min-height: 360px; }
+:root[data-embed][data-figure] .lab .center > #stage { min-height: 0; }
+@container (max-width: 560px) {
+  .hud-tl .big { font-size: 12px; }
+  .hud-tl .sub { font-size: 11px; }
+  .hud-bl { font-size: 10.5px; gap: 2px 10px; }
+}
+.sheet .evh { margin: 16px 0 6px; font-family: var(--font-display); font-size: 12px; letter-spacing: 0.14em; color: var(--cyan); text-transform: uppercase; }

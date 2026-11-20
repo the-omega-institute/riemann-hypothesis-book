@@ -1,0 +1,42 @@
+# 书的元数据。语言版本目录与 editions 一一对应（第一个为权威版本，其余逐条对齐）。
+[book]
+version = "0.1.0"
+authors = ["The Omega Institute"]
+license = "CC-BY-4.0"
+editions = ["zh", "en"]
+# 封面与站点卡片上的赛博朋克代号，形如 CODE//NAME。
+code = "ZETA//CRITICAL"
+# 出版日期（YYYY-MM-DD），进入 PDF/EPUB 元数据；留空则用构建当天（产物不能跨日复现）。
+date = "2026-11-21"
+# Stable publication DOI (usually the Zenodo concept DOI); omit until one is assigned.
+doi = ""
+
+[book.title]
+zh = "临界线上的对称：黎曼猜想是如何被证明的"
+en = "Symmetry on the Critical Line: How the Riemann Hypothesis Is Proved"
+
+[book.subtitle]
+zh = "一部面向直觉的 Lean 形式化导读"
+en = "An Intuitive Guide to the Formal Proof"
+
+[book.description]
+zh = "本书以一篇序章、七章正文和一篇尾声，循序解读 the-omega-institute/riemann-hypothesis 仓库中黎曼猜想及狄利克雷 L 函数的广义黎曼猜想的 Lean 形式化证明。全书从数学直觉出发梳理证明思路，并配有脚本生成的插图、交互可视化和一部讲解影片。"
+en = "Across seven chapters framed by a prelude and a coda, this monograph builds the mathematical intuition behind the Lean formalization of the proofs of the Riemann Hypothesis and the Generalized Riemann Hypothesis for Dirichlet L-functions in the-omega-institute/riemann-hypothesis. Script-generated figures, interactive visualizations, and an explainer film accompany the text."
+
+[outputs]
+html = true
+# PDF 版本：screen = 深色霓虹屏幕版；print = 白底印刷版；academic = A4 单栏学术预印本（可选）。
+pdf = ["screen", "print"]
+# EPUB 3（Apple Books 兼容，MathML 数学）。
+epub = true
+
+[pdf]
+# Typst 纸张名：a4、a5、us-letter、iso-b5 …
+paper = "a4"
+
+[epub]
+# 是否把 Chakra Petch / JetBrains Mono 嵌入 EPUB（中文正文始终使用阅读器自带字体）。
+embed_fonts = false
+
+[numbering.unnumbered]
+"coda.md" = "Coda"

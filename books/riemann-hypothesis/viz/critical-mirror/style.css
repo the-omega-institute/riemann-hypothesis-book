@@ -1,0 +1,21 @@
+/* ZETA//MIRROR: the shared lab layout (../assets/theme.css) plus a few page details. Colours come from the tokens only. */
+/* amber is kept for the current choice (ρ, the scan line, the cursor): title words and emphasis use other tokens */
+.hud-tl .big { color: var(--sigma); }
+.tagline em { color: var(--cyan); }
+.sheet li b { color: var(--cyan); }
+/* ρ̄: a combining macron over a Greek letter lands beside it in the page faces, so the bar is drawn by CSS. An overline
+   sits at the ascent, far above a lowercase letter; a short inline-block puts its top border just over the x-height. */
+.ob { display: inline-block; line-height: 0.6; border-top: 1px solid currentColor; }
+/* the mirror scene takes pointer input on the canvas (click or drag ρ); the prime shadow scrubs x */
+#cv { cursor: crosshair; }
+#plot { cursor: pointer; }
+/* the plane needs some height even in a short full lab; a cited figure fits its frame */
+.lab .center > #stage { min-height: 360px; }
+:root[data-embed][data-figure] .lab .center > #stage { min-height: 0; }
+@container (max-width: 560px) {
+  .hud-tl .big { font-size: 12px; }
+  .hud-tl .sub { font-size: 11px; }
+}
+#stage { container-type: inline-size; }
+/* the key readout holds two complex numbers on one line */
+dl.ro .key dd b#roPair { font-size: 16.5px; }
