@@ -36,7 +36,7 @@ order = ["example-monograph", "example-primer"]
 # repository shows its example books, so this is empty here; a books repository sets ["example-*"] to hide the
 # template's example books without deleting them, so that merging template changes with git never conflicts
 # over them.
-hide = []
+hide = ["example-*"]
 
 [figures]
 # 静态图在手机上（正文栏宽 358 px）最小的标签不到 10 px 时："warning"（默认）或 "error"（check 与 fig build 失败）。
