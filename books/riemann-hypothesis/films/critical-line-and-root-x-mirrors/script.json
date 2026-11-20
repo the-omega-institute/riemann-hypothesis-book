@@ -1,0 +1,54 @@
+{
+  "voice": "af_heart",
+  "speed": 0.94,
+  "say": {
+    "Lean": "Leen",
+    "x^θ": "x to the theta",
+    "θ": "theta",
+    "√x": "root x",
+    "√X": "root X",
+    "x = 67": "x equals sixty-seven",
+    "x⁵": "x to the fifth",
+    "Landau's": "Lan-dow's",
+    "Stepanov's": "Stepanoff's",
+    "Hecke": "Heck-uh",
+    "Harder–Narasimhan": "Harder Narra-simhan",
+    "Behrend's": "Bay-rent's",
+    "Dirichlet": "Dirishlay"
+  },
+  "music": {"bpm": 80, "progression": "a-minor"},
+  "scenes": [
+    {"id": "mirror", "name": "THE MIRROR ON 1/2", "lead": 2.2, "tail": 0.5, "music": [0.9, 0.3, 0.2, 0.0, 0.1], "lines": [
+      ["Every interesting zero of zeta lives in a narrow strip between zero and one.", "ζ 函数所有有意思的零点，都住在 0 与 1 之间的一条窄带里。"],
+      ["Down its middle runs a mirror: real part one half.", "窄带正中立着一面镜子：实部等于 1/2。"],
+      ["Push a zero off the mirror, and the functional equation forces a twin on the other side.", "把一个零点推离镜面，函数方程就会在对岸逼出它的孪生。"],
+      ["Fake zeros from extra Euler factors are harmless: they sit where the real part is zero.", "多余欧拉因子的“冒牌零点”无害：它们都待在实部为 0 的线上。"]
+    ], "cues": [{"line": 2, "at": 2.6, "kind": "chime"}]},
+    {"id": "shadow", "name": "PRIME SHADOW", "lead": 0.5, "tail": 0.5, "music": [0.9, 0.6, 0.7, 0.3, 0.3], "lines": [
+      ["Now listen to the primes: weigh each prime power by its log, and subtract the trend.", "现在听听素数：给每个素数幂按对数加权，再减去主趋势。"],
+      ["What is left is a faint hum, trapped inside a thin √x envelope.", "剩下的只是一阵微弱的嗡鸣，被关在一条细细的 √x 包络里。"],
+      ["One zero off the line would roar, and break that ceiling near x = 67.", "而只要有一个零点离线，它就会咆哮，在 x ≈ 67 附近冲破天花板。"],
+      ["Landau's trap turns this around: hold the hum below x^θ, and zeta has no zeros right of θ.", "朗道陷阱反过来用：把嗡鸣压在 x^θ 之下，ζ 在 θ 右边就没有零点。"]
+    ], "cues": [{"line": 2, "at": 2.4, "kind": "impact"}, {"line": 3, "at": 3.2, "kind": "stamp"}]},
+    {"id": "stepanov", "name": "DIFFERENTIATING INTEGERS", "lead": 0.5, "tail": 0.5, "music": [0.8, 0.7, 0.9, 0.5, 0.4], "lines": [
+      ["Counting zeros one at a time is too timid. Stepanov's trick makes every zero count many times.", "一个一个数零点，太胆怯了。Stepanov 的妙招：让每个零点都算很多次。"],
+      ["x⁵ hugs the axis so flatly that a single root counts five times.", "x⁵ 平平地贴着横轴，一个根就算作五重。"],
+      ["Over the integers you cannot divide by factorials, so use divided powers: every lowering step stays inside the box.", "整数里不能随便除以阶乘，于是改用除幂：每一步降次都留在格子里。"]
+    ]},
+    {"id": "chain", "name": "√X MIRRORS", "lead": 0.5, "tail": 0.5, "music": [0.9, 0.8, 0.8, 0.6, 0.5], "lines": [
+      ["Now chain the mirrors. Each theta lift climbs one rung, about √X rungs in all.", "现在把镜子串起来：每次 Theta 提升爬上一级，总共约 √X 级。"],
+      ["At the top, the period is tangled up with Hecke characters. A seesaw trades it for a clean Bessel period.", "到了链顶，周期和 Hecke 特征缠在一起；跷跷板把它换成干净的 Bessel 周期。"],
+      ["Lean checks the Gauss identity behind each mirror: go there and back, and you get exactly q times where you started.", "Lean 检验了每面镜子背后的高斯恒等式：去一次再回来，恰好是原来的 q 倍。"]
+    ], "cues": [{"line": 2, "at": 2.2, "kind": "stamp"}]},
+    {"id": "slopes", "name": "BREAKING 2/3", "lead": 0.5, "tail": 0.5, "music": [1.0, 0.9, 0.8, 0.7, 0.5], "lines": [
+      ["But one character alone hits a wall: its zero-free edge stalls at two thirds.", "可单靠一个特征会撞墙：它的无零点边界卡在 2/3。"],
+      ["So glue many nearly orthogonal characters, and the Harder–Narasimhan roof of the lattice flattens.", "那就把许多近乎正交的特征粘起来，格的 Harder–Narasimhan 屋顶随之压平。"],
+      ["Lean checks the short-vector bound under that roof. The curve slips below two thirds, toward one half.", "屋顶下的短向量界由 Lean 检验。曲线滑过 2/3，奔向 1/2。"]
+    ], "cues": [{"line": 2, "at": 1.4, "kind": "stamp"}]},
+    {"id": "net", "name": "CLOSING THE NET", "lead": 0.5, "tail": 4.2, "music": [1.0, 0.7, 0.6, 0.4, 0.3], "lines": [
+      ["Last, Behrend's sphere: the midpoint of two points on one shell always falls strictly inside.", "最后是 Behrend 球：同一层球壳上两点的中点，总是严格落在球内。"],
+      ["So no three line up evenly. Sets like this open dense windows, and the net closes over every Dirichlet character.", "所以壳上没有三点等距成线。这样的集合打开稠密窗口，网收拢到每个狄利克雷特征。"],
+      ["No zero survives right of one half. The mirror holds, and Lean has checked it.", "1/2 右边再无零点幸存。镜子守住了，Lean 已检验。"]
+    ], "cues": [{"line": 1, "at": 2.0, "kind": "chime"}, {"line": 2, "at": 3.0, "kind": "stamp"}]}
+  ]
+}

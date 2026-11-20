@@ -1,0 +1,34 @@
+{
+  "title": "The Critical Line and √X Mirrors",
+  "title_zh": "临界线与 √X 面镜子",
+  "summary": "The functional equation turns Re(s) = 1/2 into a mirror; the prime shadow and Landau's criterion turn zeros into growth; Stepanov's multiplicities, chains of about √X theta lifts, a flattened Harder–Narasimhan roof and Behrend's sphere close the net, ending on the Lean theorem riemannHypothesis.",
+  "summary_zh": "函数方程让 Re(s) = 1/2 成为一面镜子；素数影子与朗道判据把零点变成增长；Stepanov 重数、约 √X 次 Theta 提升连成的链、被压平的 Harder–Narasimhan 屋顶与 Behrend 球一起收网，最后落在 Lean 定理 riemannHypothesis 上。",
+  "subject": "https://github.com/the-omega-institute/riemann-hypothesis",
+  "publication_basis": "pinned",
+  "released": "2026-11-21",
+  "duration": "2:13",
+  "resolution": "1280x720@30",
+  "style": "trureturing cyberpunk · the critical-line mirror, the prime shadow, √X theta mirrors, a Harder–Narasimhan roof and Behrend's glass sphere",
+  "narration": {
+    "language": "en",
+    "engine": "Kokoro-82M v1.0 (onnx)",
+    "voice": "af_heart"
+  },
+  "subtitles": [
+    "zh",
+    "en"
+  ],
+  "lean": [
+    "Main.riemannHypothesis",
+    "Formalism/ZetaNonvanishing/ZetaLandau.Formalism.zetaLandau",
+    "Formalism/ThetaLiftIndependence/FinalThetaLiftAMFKIndep.Formalism.ThetaLiftIndependence.final_gaussOp",
+    "Formalism/LatticeSlopes/ExistsSaturatedSlopeEqMuMax.Formalism.F.shortVector",
+    "Formalism/BehrendSets/FinalE.Formalism.BehrendSets.FinalE.trivStab",
+    "Development/AutomorphicArithmetic/CharacterBoxes/MainConclusion.UpperTheory.FinalTheorems.everyCharacter"
+  ],
+  "solid": true,
+  "outputs": {
+    "narrated_720p": "riemann-hypothesis_critical-line-and-root-x-mirrors_720p_narrated.mp4",
+    "cover": "riemann-hypothesis_critical-line-and-root-x-mirrors_cover.jpg"
+  }
+}
