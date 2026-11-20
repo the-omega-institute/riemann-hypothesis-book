@@ -1,0 +1,452 @@
+# Build every book and deploy _site/ to GitHub Pages
+# (managed by the template).
+#
+# One-time setup: Settings → Pages → Build and deployment → Source: GitHub Actions.
+# Until then the probe job warns and the site is built but not deployed.
+#
+# Build cache (docs/PUBLISHING.md §5): a unit whose inputs did not change is restored, from the Actions
+# cache that successful default-branch CI/Pages runs saved or from published releases. Automatic Pages
+# waits for CI's prepared exports; film shards prepare missing videos before site assembly. The group
+# "pages" runs one publication at a time.
+name: Pages
+run-name: >-
+  ${{ github.event_name == 'push' && format('Publish Pages for {0}', github.sha) ||
+      github.event.schedule == '17 5 * * *' && 'Refresh trureturing on Pages' ||
+      github.event_name == 'workflow_dispatch' && 'Pages' || 'Select a Pages update' }}
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '4-59/5 * * * *'
+    - cron: '17 5 * * *'
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      selection_mode:
+        description: auto selects affected site inputs; full forces complete assembly
+        type: choice
+        options: [auto, full]
+        default: auto
+      release_refresh_sha:
+        description: Verified default-branch commit for a scheduled refresh of Release download links
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: >-
+    ${{ (github.event_name == 'workflow_run' || (github.event_name == 'schedule' && github.event.schedule != '17 5 * * *')) && 'pages-scheduler' ||
+        (github.event_name == 'push' && github.run_attempt == 1) && format('pages-register-{0}', github.sha) || 'pages' }}
+  cancel-in-progress: false
+
+env:
+  PYTHONUNBUFFERED: '1'
+
+jobs:
+  register:
+    name: Register pushed commit
+    if: github.event_name == 'push' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - run: printf 'Registered %s for automatic Pages selection.\n' "$GITHUB_SHA"
+
+  schedule:
+    name: Select a verified Pages update
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule != '17 5 * * *') ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    permissions:
+      actions: write
+      contents: read
+      deployments: read
+      pages: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Apply the publication cadence
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: PYTHONPATH=tools python3 -m ci.pages_schedule schedule
+
+  plan:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.run_attempt > 1) || github.event.schedule == '17 5 * * *'
+    name: Plan affected work
+    permissions:
+      contents: read
+      actions: read
+      deployments: read
+      pages: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      plan: ${{ steps.plan.outputs.plan }}
+      trureturing_sha: ${{ steps.lock.outputs.sha }}
+      site: ${{ steps.plan.outputs.site }}
+      publish: ${{ steps.plan.outputs.publish }}
+      films: ${{ steps.plan.outputs.films }}
+      film_matrix: ${{ steps.plan.outputs.film_matrix }}
+    steps:
+      - name: Check out the tested tree and complete history
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Recheck the live site before publication
+        if: github.event_name == 'push'
+        id: eligible
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: PYTHONPATH=tools python3 -m ci.pages_schedule verify
+      - name: Resolve the trureturing branch
+        if: github.event_name != 'push' || steps.eligible.outputs.publish == 'true'
+        id: lock
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GH_TOKEN: ${{ github.token }}
+          TRURETURING_TOKEN: ${{ secrets.TRURETURING_TOKEN }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = schedule ]; then
+            sha="$(PYTHONPATH=tools python3 -m ci.pages_schedule refresh)"
+          else
+            sha="$(./tbook resolve-lock --branch-head)"
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+      - name: Select before installing or downloading caches
+        if: github.event_name == 'workflow_dispatch' || steps.eligible.outputs.publish == 'true' || steps.lock.outputs.sha != ''
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REFRESH_SHA: ${{ inputs.release_refresh_sha }}
+          CI_WORKFLOW_REF: ${{ github.workflow_ref }}
+          SELECTION_MODE: ${{ inputs.selection_mode || 'auto' }}
+          TBOOK_TRURETURING_SHA: ${{ steps.lock.outputs.sha }}
+        run: python3 tools/ci/plan.py --workflow pages
+
+  probe:
+    needs: plan
+    if: needs.plan.outputs.site == 'true'
+    name: Is GitHub Pages enabled?
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      pages: read
+    outputs:
+      enabled: ${{ steps.pages.outputs.enabled }}
+    steps:
+      - name: Query the Pages configuration
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if build_type="$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.build_type' 2>/dev/null)"; then
+            if [ "$build_type" = "workflow" ]; then
+              echo "enabled=true" >> "$GITHUB_OUTPUT"
+              echo "GitHub Pages is enabled with source: GitHub Actions."
+              exit 0
+            fi
+            msg="GitHub Pages publishes from a branch (build_type: ${build_type:-unknown}). Set Settings → Pages → Source: GitHub Actions, then re-run this workflow."
+          else
+            msg="GitHub Pages is not enabled for this repository. Enable it in Settings → Pages → Source: GitHub Actions, then re-run this workflow."
+          fi
+          echo "enabled=false" >> "$GITHUB_OUTPUT"
+          echo "::warning title=GitHub Pages not deployed::$msg"
+          {
+            echo "### GitHub Pages not deployed"
+            echo
+            echo "$msg"
+            echo
+            echo "The site is still built (job **Build the site**) so that problems surface early."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  films:
+    name: Prepare publication films (${{ matrix.shard }})
+    needs: [plan, probe]
+    if: needs.plan.outputs.films == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.film_matrix) }}
+    permissions:
+      contents: read
+      actions: read
+      pages: read
+    env:
+      TBOOK_TRURETURING_SHA: ${{ needs.plan.outputs.trureturing_sha }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+      - uses: ./.github/actions/resolve-lock
+        env:
+          TRURETURING_TOKEN: ${{ secrets.TRURETURING_TOKEN }}
+      - name: Set up film tools
+        uses: ./.github/actions/setup
+        with:
+          browsers: 'true'
+          films: 'true'
+          fonts: 'false'
+          mdbook: 'false'
+      - name: Configure Pages
+        id: pages
+        if: needs.probe.outputs.enabled == 'true'
+        uses: actions/configure-pages@v6
+      - name: Restore completed CI inputs
+        uses: ./.github/actions/build-cache
+        with:
+          mode: restore
+          scope: films
+          pages-url: ${{ steps.pages.outputs.base_url }}
+      - name: Snapshot prior entries
+        run: python3 tools/ci/cache_store.py snapshot "$RUNNER_TEMP/before.json"
+      - name: Build selected film shard
+        env:
+          TBOOK_CACHE_REMOTE: '1'
+          GITHUB_TOKEN: ${{ github.token }}
+          FILMS_JSON: ${{ toJSON(matrix.items) }}
+        run: python3 tools/ci/films.py --selection-env FILMS_JSON
+      - name: Export selected complete film entries
+        env:
+          FILMS_JSON: ${{ toJSON(matrix.items) }}
+        run: python3 tools/ci/cache_store.py export --baseline "$RUNNER_TEMP/before.json" --out "$RUNNER_TEMP/film-entries" --include-films-env FILMS_JSON
+      - name: Share prepared films
+        uses: actions/upload-artifact@v6
+        with:
+          name: tbook-pages-films-${{ github.run_attempt }}-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/film-entries
+          include-hidden-files: true
+          compression-level: 0
+          if-no-files-found: warn
+          retention-days: 1
+
+  build:
+    name: Build the site
+    needs: [plan, probe, films]
+    if: always() && !cancelled() && (needs.films.result == 'success' || needs.films.result == 'skipped') && needs.plan.outputs.site == 'true'
+    runs-on: ubuntu-24.04
+    # Rendering a film that no cache holds takes long (frames, narration, encoding). The build step has a
+    # shorter limit of its own: a step that runs out of time fails, while a job that does is cancelled and
+    # skips the save, so every unit built until then would be lost and the next run would start over.
+    timeout-minutes: 240
+    permissions:
+      contents: read
+      actions: read
+      # actions/configure-pages reads the Pages configuration (GET /repos/{owner}/{repo}/pages), which
+      # private and internal repositories refuse without this scope.
+      pages: read
+    env:
+      TBOOK_TRURETURING_SHA: ${{ needs.plan.outputs.trureturing_sha }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+      - uses: ./.github/actions/resolve-lock
+        env:
+          TRURETURING_TOKEN: ${{ secrets.TRURETURING_TOKEN }}
+
+      - name: Set up the toolchain
+        uses: ./.github/actions/setup
+        with:
+          browsers: 'true'
+          fonts: 'true'
+          mdbook: 'true'
+          films: 'true'
+
+      - name: Cache trureturing frozen state
+        # Only on the default branch: a run dispatched on another branch could restore what that branch's
+        # code saved (docs/VERIFICATION.md §2).
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: actions/cache@v5
+        with:
+          path: .cache/trureturing
+          key: trureturing-state-${{ hashFiles('trureturing.lock.json') }}
+          restore-keys: trureturing-state-
+
+      - name: Configure Pages
+        id: pages
+        if: needs.probe.outputs.enabled == 'true'
+        uses: actions/configure-pages@v6
+
+      - name: Restore the build cache (and use the Pages URL)
+        uses: ./.github/actions/build-cache
+        with:
+          mode: restore
+          film-baseline: 'true'
+          pages-url: ${{ steps.pages.outputs.base_url }}
+
+      - name: Download prepared film entries
+        if: needs.plan.outputs.films == 'true'
+        continue-on-error: true
+        uses: actions/download-artifact@v7
+        with:
+          pattern: tbook-pages-films-${{ github.run_attempt }}-*
+          path: ${{ runner.temp }}/prepared-film-shards
+      - name: Import verified film entries
+        if: needs.plan.outputs.films == 'true'
+        run: python3 tools/ci/cache_store.py merge --prefer-imported "$RUNNER_TEMP"/prepared-film-shards/*
+
+      - name: Check
+        if: github.event_name == 'workflow_dispatch' || needs.plan.outputs.trureturing_sha != ''
+        env:
+          # check asks GitHub's compare API whether the pinned trureturing commit is on the site.toml branch
+          # (no trureturing checkout here); in GitHub Actions an unanswered question is an error.
+          GITHUB_TOKEN: ${{ github.token }}
+          # Optional repository secret for a private trureturing (raw files and the compare API).
+          TRURETURING_TOKEN: ${{ secrets.TRURETURING_TOKEN }}
+        run: ./tbook check
+
+      - name: Build everything
+        id: build
+        # Below the job's limit, so that the save below still runs: what was built is kept, and a re-run
+        # (or the next push) continues from there.
+        timeout-minutes: 210
+        env:
+          # Units missing from the Actions cache are looked up in the newest published releases.
+          TBOOK_CACHE_REMOTE: '1'
+          GITHUB_TOKEN: ${{ github.token }}
+          # The site never goes out without a film: one that cannot be rendered fails the build.
+          TBOOK_FILMS: require
+        run: ./tbook build all
+
+      - name: Save the build cache
+        # Also after a failed build: every unit that was built is stored complete (a film rendered before
+        # an unrelated failure is not rendered again). The action saves only on the default branch.
+        if: ${{ !cancelled() && (steps.build.outcome == 'success' || steps.build.outcome == 'failure') }}
+        uses: ./.github/actions/build-cache
+        with:
+          mode: save
+
+      - name: Upload the Pages artifact
+        if: needs.probe.outputs.enabled == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          name: github-pages-${{ github.run_attempt }}
+          path: _site
+
+      - name: Publish the complete build store
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: actions/upload-artifact@v6
+        with:
+          name: tbook-build-store
+          overwrite: true
+          path: .cache/artifacts
+          include-hidden-files: true
+          compression-level: 1
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Save reusable visualization images
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        continue-on-error: true
+        uses: ./.github/actions/build-cache/save-media
+        with:
+          target: viz-stills
+
+      - name: Publish reusable visualization images
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        continue-on-error: true
+        uses: actions/upload-artifact@v6
+        with:
+          name: tbook-image-store
+          overwrite: true
+          path: .cache/artifacts/viz-stills
+          include-hidden-files: true
+          compression-level: 0
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Save reusable film entries
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: ./.github/actions/build-cache/save-media
+        with:
+          target: films
+
+      - name: Publish reusable films for pull requests
+        if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        uses: actions/upload-artifact@v6
+        with:
+          name: tbook-film-store
+          overwrite: true
+          path: .cache/artifacts/films
+          include-hidden-files: true
+          compression-level: 0
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload the site as a workflow artifact
+        if: needs.probe.outputs.enabled != 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: site
+          overwrite: true
+          path: _site
+          retention-days: 7
+
+  deploy:
+    name: Deploy
+    needs: [plan, probe, build]
+    # A skipped optional film job must not propagate through the successful build.
+    if: "!cancelled() && needs.build.result == 'success' && needs.plan.outputs.site == 'true' && needs.probe.outputs.enabled == 'true'"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
+
+  coverage:
+    name: Confirm deployment coverage
+    needs: [plan, probe, films, build, deploy]
+    if: always() && needs.plan.result == 'success' && needs.plan.outputs.plan != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+      - name: Require planned assembly and deployment
+        env:
+          PAGES_ENABLED: ${{ needs.probe.outputs.enabled }}
+        # Keep the full needs fanout in the runner's script/file, never its environment.
+        run: |
+          cat <<'TBOOK_NEEDS_JSON' > "$RUNNER_TEMP/ci-needs.json"
+          ${{ toJSON(needs) }}
+          TBOOK_NEEDS_JSON
+          python3 tools/ci/plan.py --workflow pages --verify --needs-file "$RUNNER_TEMP/ci-needs.json"
+      - name: Record successful deployment coverage
+        if: needs.plan.outputs.publish == 'true' && (needs.plan.outputs.site != 'true' || needs.probe.outputs.enabled == 'true')
+        uses: actions/upload-artifact@v6
+        with:
+          name: tbook-coverage-pages
+          path: coverage/pages.json
+          if-no-files-found: error
+          retention-days: 90
+          overwrite: true
+      - name: Record successful film responsibility coverage
+        if: needs.plan.outputs.publish == 'true' && needs.plan.outputs.site == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: tbook-coverage-films
+          path: coverage/films.json
+          if-no-files-found: error
+          retention-days: 90
+          overwrite: true

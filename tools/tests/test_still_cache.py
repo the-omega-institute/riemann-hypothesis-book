@@ -1,0 +1,123 @@
+"""The real thumbnail entrypoint skips Chromium only with verified inputs and outputs."""
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import unittest
+
+from test_newbook import Repo, write
+from tbook import paths
+
+SOURCE = paths.ROOT
+
+
+@unittest.skipUnless(shutil.which('node'), 'Node is required')
+class StillCacheTests(unittest.TestCase):
+    def test_link_only_capture_ignores_lock_but_ordinary_capture_keeps_full_dependency(self):
+        with Repo() as repo:
+            book = repo.book()
+            write(book.dir / 'viz/demo/index.html', '<a data-lean-gid="D5/S1/Example.result">Theorem</a>')
+            env = dict(os.environ, TBOOK_ROOT=str(repo.root))
+            js = '''
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+const { inputKey } = await import(process.argv[1]);
+const book = {dir: path.join(process.env.TBOOK_ROOT, 'books/demo')};
+const all = {id:'demo'}, links = {id:'demo', capture_lock:'links'};
+const before = [inputKey(book, all), inputKey(book, links)];
+fs.writeFileSync(path.join(process.env.TBOOK_ROOT, 'trureturing.lock.json'), JSON.stringify({commit:'new',declarations:{added:{kind:'theorem'}}}));
+assert.notEqual(inputKey(book, all), before[0], 'undeclared lock reads remain conservative');
+assert.equal(inputKey(book, links), before[1], 'anchor destinations cannot invalidate captured pixels');
+fs.writeFileSync(path.join(book.dir, 'viz/demo/index.html'), '<a>Changed visible evidence</a>');
+assert.notEqual(inputKey(book, links), before[1], 'visible source changes still invalidate pixels');
+assert.throws(() => inputKey(book, {id:'demo',capture_lock:'invalid'}));
+'''
+            result = subprocess.run(['node', '--input-type=module', '-e', js,
+                                     (SOURCE / 'tools/node/viz-still-cache.mjs').as_uri()],
+                                    env=env, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_large_plan_flushes_pipe_and_scans_book_once(self):
+        with Repo() as repo:
+            book = repo.book(langs=('en',))
+            ids = ['first', 'last', 'constructor']
+            for vid in ids:
+                write(book.dir / f'viz/{vid}/index.html', '<div class="stage">A</div>')
+            write(book.dir / 'viz/visualizations.json', json.dumps({
+                'visualizations': [{'id': vid} for vid in ids]}))
+            presets = [f'card-{i:05}-' + 'x' * 90 for i in range(9000)]
+            write(book.dir / 'en/ch01.md', '# One\n\n' + ''.join(
+                f'::: {{.viz src="first" preset="{preset}"}}\n:::\n\n' for preset in presets)
+                + '::: {.viz src="last" preset="final"}\n:::\n')
+            # Count real parser launches without replacing its output or its book-reading behavior.
+            launcher = write(repo.root / 'python-launcher', f'#!{sys.executable}\n'
+                             'import os, sys\n'
+                             'with open(os.environ["CITATION_LAUNCH_LOG"], "a") as log: log.write("scan\\n")\n'
+                             'os.execv(sys.executable, [sys.executable, *sys.argv[1:]])\n')
+            launcher.chmod(0o755)
+            log = repo.root / 'parser-launches'
+            env = dict(os.environ, TBOOK_ROOT=str(repo.root), PW_CHROMIUM_PATH='/no-browser-installed',
+                       TBOOK_PYTHON=str(launcher), CITATION_LAUNCH_LOG=str(log),
+                       PYTHONPATH=str(SOURCE / 'tools'))
+            result = subprocess.run(['node', str(SOURCE / 'tools/node/viz-thumbs.mjs'), 'demo', '--plan'],
+                                    cwd=repo.root, env=env, capture_output=True, text=True, timeout=120)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertGreater(len(result.stdout.encode()), 1 << 20)
+            plan = json.loads(result.stdout)
+            self.assertEqual([job['id'] for job in plan], ids)
+            self.assertEqual(len(plan[0]['outputs']), len(presets) + 2)
+            self.assertEqual(plan[0]['outputs'][-2], f'books/demo/viz/first/fig-{presets[-1]}.en.jpg')
+            self.assertEqual(plan[1]['outputs'], ['books/demo/viz/last/thumb.jpg',
+                                                'books/demo/viz/last/fig-final.en.jpg',
+                                                'books/demo/viz/last/.stills.json'])
+            self.assertEqual(plan[2]['outputs'], ['books/demo/viz/constructor/thumb.jpg',
+                                                'books/demo/viz/constructor/.stills.json'])
+            self.assertEqual(log.read_text(), 'scan\n')
+
+    def test_cache_provenance_corruption_and_no_browser_fast_path(self):
+        with Repo() as repo:
+            book = repo.book()
+            page = book.dir / 'viz/demo'
+            write(page / 'index.html', '<div class="stage">A</div>')
+            write(page / 'thumb.jpg', 'image bytes')
+            write(book.dir / 'viz/visualizations.json', json.dumps({'visualizations': [{'id': 'demo'}]}))
+            env = dict(os.environ, TBOOK_ROOT=str(repo.root), PW_CHROMIUM_PATH='/no-browser-installed',
+                       TBOOK_PYTHON=shutil.which('python3'), PYTHONPATH=str(SOURCE / 'tools'))
+            js = '''
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+const { inputKey, digest, fresh, writeChanged } = await import(process.argv[1]);
+const book = { slug: 'demo', dir: path.join(process.env.TBOOK_ROOT, 'books/demo') };
+const v = { id: 'demo' }, dir = path.join(book.dir, 'viz/demo'), out = path.join(dir, 'thumb.jpg');
+const key = inputKey(book, v), entry = { input: key, output: digest(fs.readFileSync(out)) };
+assert(fresh(entry, key, out));
+fs.writeFileSync(out, 'corrupted');
+assert(!fresh(entry, key, out));
+assert.equal(inputKey(book, v), key, 'generated bytes are not an input');
+fs.writeFileSync(out, 'image bytes');
+fs.writeFileSync(path.join(dir, 'main.js'), 'changed scene');
+assert.notEqual(inputKey(book, v), key, 'source edit invalidates images');
+fs.unlinkSync(path.join(dir, 'main.js'));
+const before = fs.statSync(out).mtimeMs;
+assert.equal(writeChanged(out, fs.readFileSync(out)), false);
+assert.equal(fs.statSync(out).mtimeMs, before);
+writeChanged(path.join(dir, '.stills.json'), JSON.stringify({ schema: 1, images: { cover: entry } }));
+'''
+            result = subprocess.run(['node', '--input-type=module', '-e', js,
+                                     (SOURCE / 'tools/node/viz-still-cache.mjs').as_uri()], env=env, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            for extra in (['--check'], []):
+                result = subprocess.run(['node', str(SOURCE / 'tools/node/viz-thumbs.mjs'), 'demo', *extra],
+                                        cwd=repo.root, env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn('no browser', result.stdout)
+            write(page / 'thumb.jpg', 'corrupt again')
+            result = subprocess.run(['node', str(SOURCE / 'tools/node/viz-thumbs.mjs'), 'demo', '--check'],
+                                    cwd=repo.root, env=env, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertIn('stale', result.stderr)
+            self.assertNotIn('browserType.launch', result.stderr)
