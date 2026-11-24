@@ -2,8 +2,8 @@
   "schema": "trureturing-books.lock.v1",
   "repo": "the-omega-institute/riemann-hypothesis",
   "branch": "main",
-  "commit": "0bcc9368e418286f6e6fa6ab125539b2675bcac9",
-  "pinned_at": "2026-11-20T20:45:03Z",
+  "commit": "c7d25b3bfd7906388bb8eb0774e027a2b756a7b6",
+  "pinned_at": "2026-11-24T06:47:17Z",
   "declarations": {
     "Development/AutomorphicArithmetic/AutomorphicVarieties/SmallClassNumbers/CorGKOf.UpperTheory.V.SmallClassNumbers.corGK": {
       "module": "Development/AutomorphicArithmetic/AutomorphicVarieties/SmallClassNumbers/CorGKOf",
