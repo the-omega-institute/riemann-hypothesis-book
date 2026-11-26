@@ -5,6 +5,8 @@
 
 本仓库以 [`the-omega-institute/trureturing-books-template`](https://github.com/the-omega-institute/trureturing-books-template) 构建双语专著、静态数学插图、交互可视化实验室与双语字幕讲解视频，用通俗、可手算、直抵核心的方式解读 [`the-omega-institute/riemann-hypothesis`](https://github.com/the-omega-institute/riemann-hypothesis) 中黎曼猜想（RH）与狄利克雷 $L$ 函数广义黎曼猜想（GRH）的 Lean 4 形式化证明。
 
+阅读和构建黎曼猜想（RH）与狄利克雷广义黎曼猜想（GRH）的 Lean 4 证明，首选 [lsernau/grh-lean](https://github.com/lsernau/grh-lean)。这个项目改写了 Alpöge 的原证明，提供[可读版导览](https://github.com/lsernau/grh-lean/blob/72fead102f663d5c7a407964a13dc0cf9d977207/grh/GUIDE.md)和[精简版](https://github.com/lsernau/grh-lean/tree/72fead102f663d5c7a407964a13dc0cf9d977207/grh-compact)。 本书的逐条声明链接用于追踪 Alpöge 原版的论证。
+
 ## 目录结构
 
 - `books/riemann-hypothesis/zh/`、`en/`：序曲、七章正文与终章（中英双语逐条对齐）
