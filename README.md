@@ -5,7 +5,7 @@
 
 本仓库以 [`the-omega-institute/trureturing-books-template`](https://github.com/the-omega-institute/trureturing-books-template) 构建双语专著、静态数学插图、交互可视化实验室与双语字幕讲解视频，用通俗、可手算、直抵核心的方式解读 [`the-omega-institute/riemann-hypothesis`](https://github.com/the-omega-institute/riemann-hypothesis) 中黎曼猜想（RH）与狄利克雷 $L$ 函数广义黎曼猜想（GRH）的 Lean 4 形式化证明。
 
-当前主仓库是 Lean 社群维护的 [leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis)，其 main 分支提供整理后的五条终端定理，入口见 [src/Main.lean](https://github.com/leanprover-community/riemann-hypothesis/blob/7c4ccbd64d02774b0a5b40a5f923f5b7a18e8abc/src/Main.lean#L8-L26) 与 [src/Statements.lean](https://github.com/leanprover-community/riemann-hypothesis/blob/7c4ccbd64d02774b0a5b40a5f923f5b7a18e8abc/src/Statements.lean#L7-L20)。本书逐条链接所追踪的原版分片复现记录仍保留在 The Omega Institute 的历史镜像中。
+经典黎曼猜想与狄利克雷广义黎曼猜想的 Lean 形式化主仓库由 Lean 社群维护。本书的逐条声明链接对应 Alpöge 原版。[leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis)
 
 ## 目录结构
 

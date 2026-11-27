@@ -4,9 +4,7 @@
 
 ## 1. 定位与证据原则
 
-当前主仓库是 Lean 社群维护的 [leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis)，其 main 分支提供整理后的五条终端定理。书中保留的历史镜像只承担原版分片复现与旧中间声明的定位。
-
-阅读和构建该证明，首选 Lean 社群维护的 [leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis)。当前 main 分支的五条终端定理入口见 [src/Main.lean](https://github.com/leanprover-community/riemann-hypothesis/blob/7c4ccbd64d02774b0a5b40a5f923f5b7a18e8abc/src/Main.lean#L8-L26) 与 [src/Statements.lean](https://github.com/leanprover-community/riemann-hypothesis/blob/7c4ccbd64d02774b0a5b40a5f923f5b7a18e8abc/src/Statements.lean#L7-L20)。
+经典黎曼猜想与狄利克雷广义黎曼猜想的 Lean 形式化主仓库由 Lean 社群维护。本书的逐条声明链接对应 Alpöge 原版。[leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis)
 
 - 本书库出版围绕 [`the-omega-institute/riemann-hypothesis`](https://github.com/the-omega-institute/riemann-hypothesis) 构建的直观导读专著《临界线上的对称：黎曼猜想是如何被证明的》，涵盖中英双语正文、脚本生成静态图（`figures/`）、交互可视化实验室（`viz/`）与双语字幕讲解视频（`films/`）。
 - 站点通过 `site.toml` 的 `[trureturing] mode = "lean-source"` 与 `source_root = "src"` 将形式化引用直接锚定到 `the-omega-institute/riemann-hypothesis@main` 的 `.lean` 源文件及精确行号；隐藏模板示例书（`hide = ["example-*"]`）。

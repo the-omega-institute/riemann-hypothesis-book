@@ -16,7 +16,7 @@
 
 本书要做的事很直接：用不晦涩、能手算、能亲眼看见的语言，拆解 [`the-omega-institute/riemann-hypothesis`](https://github.com/the-omega-institute/riemann-hypothesis) 仓库中黎曼猜想（RH）以及狄利克雷 $L$ 函数的广义黎曼猜想（GRH）的 Lean 4 形式化证明究竟是怎么走通的。
 
-阅读和构建黎曼猜想（RH）与狄利克雷广义黎曼猜想（GRH）的 Lean 4 证明，首选 Lean 社群维护的 [leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis)。当前 main 分支的五条终端定理入口见 [src/Main.lean](https://github.com/leanprover-community/riemann-hypothesis/blob/7c4ccbd64d02774b0a5b40a5f923f5b7a18e8abc/src/Main.lean#L8-L26) 与 [src/Statements.lean](https://github.com/leanprover-community/riemann-hypothesis/blob/7c4ccbd64d02774b0a5b40a5f923f5b7a18e8abc/src/Statements.lean#L7-L20)。本书的逐条声明链接继续追踪原版分片复现记录。
+经典黎曼猜想与狄利克雷广义黎曼猜想的 Lean 形式化主仓库由 Lean 社群维护。本书的逐条声明链接对应 Alpöge 原版。[leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis)
 
 先说明出处与版权边界：这套 1,737 万行 Lean 4 证明源码由 **Levent Alpöge** 原创并公开发布（[`alpo.ge/remark.pdf`](https://alpo.ge/remark.pdf)，源码权利归原作者所有，本书库不作再分发）；**Deicyde** 创建了上游独立验证镜像 [`Deicyde/riemann-hypothesis`](https://github.com/Deicyde/riemann-hypothesis)；而我们所钉的形式化仓库 `the-omega-institute/riemann-hypothesis` 是从 `Deicyde/riemann-hypothesis` **fork** 而来，完整保留全部证明源码不改一字，专门叠加公开分片 CI 构建与 `./verify` 零信任本地重放工具（完整版权声明与致谢见[终章 · 版权声明与致谢](coda.md#sec-coda-copyright-acknowledgments)）。
 

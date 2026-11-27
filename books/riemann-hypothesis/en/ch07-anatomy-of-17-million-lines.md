@@ -8,7 +8,7 @@ Before Lean 4's kernel, massive length buys zero immunity. Every single line mus
 
 ## 7.1 The 27-Line Challenge Contract: How Verification Prevents Cheating {#sec-ch07-challenge-contract}
 
-Before opening the historical replay mirror the-omega-institute/riemann-hypothesis, start with the current primary repository leanprover-community/riemann-hypothesis.
+Before opening [`the-omega-institute/riemann-hypothesis`](https://github.com/the-omega-institute/riemann-hypothesis), let us keep its provenance crystal clear: the 17.37-million-line Lean 4 proof source for RH and Dirichlet GRH was authored and released by **Levent Alpöge** ([`alpo.ge/remark.pdf`](https://alpo.ge/remark.pdf)); **Deicyde** then created the upstream verification mirror [`Deicyde/riemann-hypothesis`](https://github.com/Deicyde/riemann-hypothesis), adding a 27-line Mathlib-only challenge contract `src/Challenge.lean` (importing **only** official Mathlib `v4.33.1` at commit `0df444a360ea`) and Comparator harness around the unmodified source; and [`the-omega-institute/riemann-hypothesis`](https://github.com/the-omega-institute/riemann-hypothesis) is The Omega Institute's **fork** of `Deicyde/riemann-hypothesis`, keeping every proof file untouched while adding the 8,490-shard public CI builder and `./verify` local replay script.
 
 That contract does not care whether the proof inside uses unitary groups, CM elliptic curves, or moonbeams. It asks five blunt questions:
 
@@ -85,7 +85,7 @@ The interactive diagram below lays out how those 8,490 content-addressed shards 
 
 ## 7.3 Anyone Can Verify It: Four Commands and Zero-Trust Replay {#sec-ch07-verify-yourself}
 
-To build and verify the five terminal theorems in the current primary repository, start with the [leanprover-community/riemann-hypothesis README](https://github.com/leanprover-community/riemann-hypothesis) and [src/Main.lean](https://github.com/leanprover-community/riemann-hypothesis/blob/7c4ccbd64d02774b0a5b40a5f923f5b7a18e8abc/src/Main.lean#L8-L26). The shard commands below replay Alpöge’s original release.
+The Lean community’s primary repository provides the build instructions for all five terminal theorems. The shard commands below replay Alpöge’s original release. [leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis)
 
 > "Wait—if you download pre-compiled binaries from public CI, aren't you just trusting the CI runners?" Quite the opposite: buying bricks off someone else's kiln does not mean trusting their sales pitch, as long as you put every brick through your own press when it arrives.
 
