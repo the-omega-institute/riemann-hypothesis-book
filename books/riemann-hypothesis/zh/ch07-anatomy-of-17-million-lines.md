@@ -85,7 +85,7 @@ Mathlib 定义的 `RiemannHypothesis` 成立。
 
 ## 7.3 任何人都能亲自验证：四行命令与零信任重放 {#sec-ch07-verify-yourself}
 
-要在 Lean 4.35.0 中构建并核验五条终端定理，可以从 [grh-lean 精简版](https://github.com/lsernau/grh-lean/tree/72fead102f663d5c7a407964a13dc0cf9d977207/grh-compact)开始。下面的分片命令用于重放 Alpöge 原版。
+五条终端定理的构建方法见 Lean 社群主仓库。下文的分片命令用于重放 Alpöge 原版。[leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis)
 
 > “公开发布已经编好的二进制分片，是不是就意味着读者只能盲信 CI 跑分器没有被收买？”——恰恰相反：下载别人编译好的砖头，**不等于**相信造砖人没偷工减料；只要你家里有自己的秤，把每一块砖现场过一遍秤，信任成本就是零。
 

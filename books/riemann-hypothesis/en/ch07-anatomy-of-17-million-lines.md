@@ -85,7 +85,7 @@ The interactive diagram below lays out how those 8,490 content-addressed shards 
 
 ## 7.3 Anyone Can Verify It: Four Commands and Zero-Trust Replay {#sec-ch07-verify-yourself}
 
-To build and verify the five terminal theorems with Lean 4.35.0, start with the [compact edition of grh-lean](https://github.com/lsernau/grh-lean/tree/72fead102f663d5c7a407964a13dc0cf9d977207/grh-compact). The shard commands below replay Alpöge’s original release.
+The Lean community’s primary repository provides the build instructions for all five terminal theorems. The shard commands below replay Alpöge’s original release. [leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis)
 
 > "Wait—if you download pre-compiled binaries from public CI, aren't you just trusting the CI runners?" Quite the opposite: buying bricks off someone else's kiln does not mean trusting their sales pitch, as long as you put every brick through your own press when it arrives.
 
