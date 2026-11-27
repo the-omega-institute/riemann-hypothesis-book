@@ -8,7 +8,7 @@
 
 ## 7.1 27 行“挑战契约”：如何防止作弊 {#sec-ch07-challenge-contract}
 
-在追踪 [`the-omega-institute/riemann-hypothesis`](https://github.com/the-omega-institute/riemann-hypothesis) 的源码之前，先把脉络与致谢交代清楚：整份黎曼猜想与狄利克雷 $L$ 函数 GRH 的 Lean 4 证明源码由 **Levent Alpöge** 原创并发布于 [`alpo.ge/remark.pdf`](https://alpo.ge/remark.pdf)；随后 **Deicyde** 创建了上游独立验证镜像仓库 [`Deicyde/riemann-hypothesis`](https://github.com/Deicyde/riemann-hypothesis)，在不修改证明源码一字一符的前提下，在仓库根目录和 `src/` 下放入了一枚只依赖官方 Mathlib `v4.33.1`（精确对应官方提交 `0df444a360ea`）的 27 行极简挑战文件 `src/Challenge.lean`；而本书所钉的 [`the-omega-institute/riemann-hypothesis`](https://github.com/the-omega-institute/riemann-hypothesis) 则是由 The Omega Institute 从 `Deicyde/riemann-hypothesis` **fork** 而来，原封不动保留证明源码与挑战契约，专门补充公开分片 CI 构建与 `./verify` 零信任本地重放工具。
+在追踪原版复现镜像 the-omega-institute/riemann-hypothesis 的源码之前，先参阅当前主仓库 leanprover-community/riemann-hypothesis。
 
 这份契约文件只问五个问题，连证明里到底用了酉群还是椭圆曲线都懒得过问：
 
@@ -85,7 +85,7 @@ Mathlib 定义的 `RiemannHypothesis` 成立。
 
 ## 7.3 任何人都能亲自验证：四行命令与零信任重放 {#sec-ch07-verify-yourself}
 
-要在 Lean 4.35.0 中构建并核验五条终端定理，可以从 [grh-lean 精简版](https://github.com/lsernau/grh-lean/tree/72fead102f663d5c7a407964a13dc0cf9d977207/grh-compact)开始。下面的分片命令用于重放 Alpöge 原版。
+要在当前主仓库中构建并核验五条终端定理，可以从 [leanprover-community/riemann-hypothesis](https://github.com/leanprover-community/riemann-hypothesis) 的 README 和 src/Main.lean 开始。下面的分片命令用于重放 Alpöge 原版。
 
 > “公开发布已经编好的二进制分片，是不是就意味着读者只能盲信 CI 跑分器没有被收买？”——恰恰相反：下载别人编译好的砖头，**不等于**相信造砖人没偷工减料；只要你家里有自己的秤，把每一块砖现场过一遍秤，信任成本就是零。
 
